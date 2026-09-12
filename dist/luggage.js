@@ -1,8 +1,23 @@
 /* Raster suitcase skins stretch only through their body panels. Handles,
    wheels and corner guards retain their proportions at every region size. */
 const LuggageRenderer = (() => {
-  const skins = ["./assets/suitcase-hard.png", "./assets/suitcase-soft.png"];
-  const sources = skins.map((path) => {
+  /* Every skin is a 1254x1254 RGBA case seen from above on transparency,
+     grey enough for the tag colour to multiply over it, with the handle
+     inside the middle fifth of the top band and the wheels in the outer
+     columns. Add a file here to put it in the rotation; a file that fails
+     to load is dropped from the pool instead of stopping the shift. */
+  const SKINS = [
+    "./assets/suitcase-hard.png",
+    "./assets/suitcase-soft.png",
+    "./assets/suitcase-ribbed.png",
+    "./assets/suitcase-quilted.png",
+    "./assets/suitcase-trunk.png",
+    "./assets/suitcase-flightcase.png",
+    "./assets/suitcase-duffel.png",
+    "./assets/suitcase-wrapped.png",
+  ];
+
+  const sources = SKINS.map((path) => {
     const image = new Image();
     image.src = path;
     return image;
@@ -16,19 +31,51 @@ const LuggageRenderer = (() => {
     image.addEventListener("error", resolve, { once: true });
   })));
 
-  function skinFor(index, color) {
-    const material = index % 3 === 1 ? 1 : 0;
-    const key = `${material}:${color}`;
+  let pool = sources;
+  ready.then(() => {
+    const loaded = sources.filter((image) => image.complete && image.naturalWidth);
+    if (loaded.length) pool = loaded;
+  });
+
+  /* One scrambled number per tag decides which skin the case is made of,
+     which way round it lies and how worn its colour looks. It is derived
+     from the tag index, so a case keeps its identity between repaints
+     while a loaded dolly ends up a mixed pile rather than a pattern. */
+  function variantOf(index) {
+    let hash = Math.imul(index + 1, 2654435761) >>> 0;
+    hash = (hash ^ (hash >>> 15)) >>> 0;
+    hash = Math.imul(hash, 2246822507) >>> 0;
+    /* Stay unsigned: a negative hash would index the pool off its end. */
+    hash = (hash ^ (hash >>> 13)) >>> 0;
+    return {
+      source: pool[hash % pool.length],
+      flipX: (hash >>> 7) & 1 ? -1 : 1,
+      flipY: (hash >>> 11) & 1 ? -1 : 1,
+      tone: 0.9 + ((hash >>> 15) % 21) / 100,
+    };
+  }
+
+  /* The tag colour multiplies over the grey skin. Shading it per case keeps
+     two cases of one colour from looking pressed out of the same mould. */
+  function shade(color, tone) {
+    const value = parseInt(color.slice(1), 16);
+    const channel = (shift) => Math.min(255, Math.round(((value >> shift) & 255) * tone));
+    return `rgb(${channel(16)},${channel(8)},${channel(0)})`;
+  }
+
+  function skinFor(variant, color) {
+    const source = variant.source;
+    if (!source || !source.complete || !source.naturalWidth) return null;
+    const wash = shade(color, variant.tone);
+    const key = `${source.src}:${wash}`;
     if (tinted.has(key)) return tinted.get(key);
-    const source = sources[material];
-    if (!source.complete || !source.naturalWidth) return null;
     const skin = document.createElement("canvas");
     skin.width = source.naturalWidth;
     skin.height = source.naturalHeight;
     const ctx = skin.getContext("2d");
     ctx.drawImage(source, 0, 0);
     ctx.globalCompositeOperation = "multiply";
-    ctx.fillStyle = color;
+    ctx.fillStyle = wash;
     ctx.fillRect(0, 0, skin.width, skin.height);
     ctx.globalCompositeOperation = "destination-in";
     ctx.drawImage(source, 0, 0);
@@ -53,8 +100,19 @@ const LuggageRenderer = (() => {
     }
   }
 
+  /* Both band layouts are symmetric, so mirroring the destination lays the
+     case down the other way round without disturbing the nine slices. */
+  function drawCase(ctx, skin, width, height, variant) {
+    ctx.save();
+    ctx.translate(variant.flipX < 0 ? width : 0, variant.flipY < 0 ? height : 0);
+    ctx.scale(variant.flipX, variant.flipY);
+    drawPanels(ctx, skin, width, height);
+    ctx.restore();
+  }
+
   function paint(canvas, index, color) {
-    const skin = skinFor(index, color);
+    const variant = variantOf(index);
+    const skin = skinFor(variant, color);
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
     if (!skin || !width || !height) return;
@@ -67,9 +125,9 @@ const LuggageRenderer = (() => {
     if (width > height) {
       ctx.translate(width, 0);
       ctx.rotate(Math.PI / 2);
-      drawPanels(ctx, skin, height, width);
+      drawCase(ctx, skin, height, width, variant);
     } else {
-      drawPanels(ctx, skin, width, height);
+      drawCase(ctx, skin, width, height, variant);
     }
   }
 
