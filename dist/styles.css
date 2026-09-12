@@ -188,6 +188,22 @@ button { font: inherit; }
     20% 70.8%, 15.8% 70.8%, 15.8% 14.6%, 20% 14.6%, 20% 10.1%);
 }
 
+/* Extend the scene below the existing square, keeping the dolly and its
+   playable bed at precisely their original responsive dimensions. */
+.baggage-tug {
+  position: absolute;
+  z-index: 6;
+  left: 34.16%;
+  top: 91.35%;
+  width: 32%;
+  height: auto;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+  filter: drop-shadow(3px 6px 5px rgba(8, 14, 18, .3));
+}
+.tug-clearance { width: 100%; aspect-ratio: 25 / 9; }
+
 .grid,
 .regions-layer,
 .draft-layer { position: absolute; inset: 0; }
