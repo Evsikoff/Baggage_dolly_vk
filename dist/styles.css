@@ -311,6 +311,33 @@ button { font: inherit; }
 .draft-region { --case: #fff; border-style: dashed; background: rgba(255,255,255,.12); box-shadow: none; }
 .draft-region.invalid { --case: #ff6868; background: rgba(224,67,67,.25); animation: wrongShake .28s ease 2; }
 
+.draft-counter {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  min-width: 54px;
+  height: 34px;
+  padding: 0 9px;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: #111820;
+  border: 2px solid #f8fafb;
+  color: #fff;
+  box-shadow: 2px 3px 0 rgba(0,0,0,.32);
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.draft-counter b { font-weight: 900; }
+.draft-counter i { color: #aeb8c1; font-style: normal; font-weight: 700; }
+.draft-counter.matched { background: #147554; border-color: #72e3b8; }
+.draft-counter.over { background: #a92e35; border-color: #ff9a9f; }
+.draft-counter.unknown b:last-child { color: #aeb8c1; }
+
 @keyframes wrongShake {
   25% { transform: translateX(-3px); }
   75% { transform: translateX(3px); }
@@ -463,6 +490,7 @@ button { font: inherit; }
   .clue::before { display: none; }
   .clue-shape { font-size: .65rem; }
   .region, .draft-region { margin: 2px; border-width: 2px; }
+  .draft-counter { min-width: 47px; height: 29px; padding: 0 7px; font-size: .86rem; }
   .mobile-help { display: block; margin: 18px 4px 0; text-align: center; color: var(--muted); font-size: .84rem; }
   .control-panel { padding: 24px 20px; }
   .briefing h1 { font-size: 1.8rem; }

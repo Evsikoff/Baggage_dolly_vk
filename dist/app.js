@@ -152,9 +152,18 @@ function renderDraft() {
   draftLayer.innerHTML = "";
   const rect = state.invalidDraft || (state.drag && !state.drag.existing ? rectFromCells(state.drag.start, state.drag.current) : null);
   if (!rect) return;
+  const currentArea = rect.width * rect.height;
+  const clues = cluesIn(rect);
+  const requiredArea = clues.length === 1 ? clues[0].area : null;
+  const counterState = requiredArea === null
+    ? "unknown"
+    : currentArea === requiredArea
+      ? "matched"
+      : currentArea > requiredArea ? "over" : "under";
   const el = document.createElement("div");
   el.className = `draft-region${state.invalidDraft ? " invalid" : ""}`;
   el.style.cssText = rectStyle(rect);
+  el.innerHTML = `<span class="draft-counter ${counterState}"><b>${currentArea}</b><i>/</i><b>${requiredArea ?? "?"}</b></span>`;
   draftLayer.append(el);
 }
 
