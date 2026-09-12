@@ -151,6 +151,7 @@ button { font: inherit; }
 .dolly-wrap { width: 100%; max-width: 850px; margin: 0 auto; }
 .dolly-scene {
   position: relative;
+  z-index: 1;
   width: 100%;
   aspect-ratio: 1;
   isolation: isolate;
@@ -165,6 +166,8 @@ button { font: inherit; }
   pointer-events: none;
   user-select: none;
   border-radius: 12px;
+  /* Blend only the empty asphalt below the hitch into its continuation. */
+  mask-image: linear-gradient(#000 96%, transparent 100%);
 }
 .board {
   position: absolute;
@@ -202,7 +205,25 @@ button { font: inherit; }
   user-select: none;
   filter: drop-shadow(3px 6px 5px rgba(8, 14, 18, .3));
 }
-.tug-clearance { width: 100%; aspect-ratio: 25 / 9; }
+.tug-clearance { position: relative; width: 100%; aspect-ratio: 25 / 9; }
+/* Reuse vehicle-free lower corner patches at their original grain size.
+   The overlap joins the pavement without changing the scene's dimensions. */
+.apron-ground {
+  position: absolute;
+  inset: -11.111111% 0 0;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  overflow: hidden;
+  border-radius: 0 0 12px 12px;
+  pointer-events: none;
+}
+.apron-ground i {
+  background: url("./assets/dolly-overhead.png") left bottom / 700% 500% no-repeat;
+  transform: scale(var(--ground-x, 1), var(--ground-y, 1));
+}
+.apron-ground i:is(:nth-child(2), :nth-child(4), :nth-child(6), :nth-child(9), :nth-child(11), :nth-child(13)) { --ground-x: -1; }
+.apron-ground i:nth-last-child(-n + 7) { --ground-y: -1; }
 
 .grid,
 .regions-layer,
