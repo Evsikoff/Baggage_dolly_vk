@@ -18,8 +18,8 @@ const DIFFICULTY_LABELS = {
 const SHAPE_LABELS = { square: "квадрат", horizontal: "вдоль", vertical: "поперёк" };
 const SHAPE_SYMBOLS = { square: "□", horizontal: "↔", vertical: "↕" };
 const PALETTE = [
-  "#ff6f61", "#56c5d0", "#ffc43d", "#a88bf2", "#54c47d", "#f08bb4",
-  "#ff914d", "#52a6e8", "#cfdb55", "#d47ac3", "#71d0a7", "#e7a84f",
+  "#2f72b5", "#c78b92", "#397b86", "#8c705e", "#4f5875", "#b84c49",
+  "#454c53", "#4387b8", "#7d8993", "#b0784c", "#6c4a6e", "#4c7d70",
 ];
 
 const board = document.querySelector("#board");
@@ -142,8 +142,9 @@ function renderRegions() {
   regionsLayer.innerHTML = "";
   state.regions.forEach((region) => {
     const el = document.createElement("div");
-    el.className = `region ${shapeOf(region)}${region.hinted ? " hinted" : ""}${region.wrong ? " wrong" : ""}`;
+    el.className = `region ${shapeOf(region)} case-style-${region.clueIndex % 4}${region.hinted ? " hinted" : ""}${region.wrong ? " wrong" : ""}`;
     el.style.cssText = `${rectStyle(region)}--case:${PALETTE[region.clueIndex % PALETTE.length]};`;
+    el.innerHTML = '<i class="case-seam"></i><i class="case-ticket"></i>';
     regionsLayer.append(el);
   });
 }
