@@ -7,20 +7,13 @@ const LEVEL_FILES = {
 };
 
 const DIFFICULTIES = ["tutorial", "easy", "medium", "hard", "expert"];
-const DIFFICULTY_LABELS = {
-  tutorial: "Обучение",
-  easy: "Просто",
-  medium: "Средне",
-  hard: "Сложно",
-  expert: "Эксперт",
-};
-
-const SHAPE_LABELS = { square: "квадрат", horizontal: "вдоль", vertical: "поперёк" };
 const SHAPE_SYMBOLS = { square: "□", horizontal: "↔", vertical: "↕" };
 const PALETTE = [
   "#2f72b5", "#c78b92", "#397b86", "#8c705e", "#4f5875", "#b84c49",
   "#454c53", "#4387b8", "#7d8993", "#b0784c", "#6c4a6e", "#4c7d70",
 ];
+
+const t = (key, params) => I18N.t(key, params);
 
 const board = document.querySelector("#board");
 const grid = document.querySelector("#grid");
@@ -44,6 +37,8 @@ const state = {
   hints: 0,
   startedAt: Date.now(),
   timerId: null,
+  advice: { title: "advice.start.title", text: "advice.start.text", type: "info", params: {}, terms: {} },
+  completion: null,
 };
 
 function makeCells() {
@@ -80,7 +75,7 @@ async function loadBanks() {
   const entries = await Promise.all(
     Object.entries(LEVEL_FILES).map(async ([name, path]) => {
       const response = await fetch(path);
-      if (!response.ok) throw new Error(`Не удалось загрузить ${path}`);
+      if (!response.ok) throw new Error(t("error.levelFetch", { path }));
       const payload = await response.json();
       return [name, payload.levels];
     }),
@@ -99,15 +94,14 @@ function beginLevel(difficulty, index) {
   state.errors = 0;
   state.hints = 0;
   state.startedAt = Date.now();
+  state.completion = null;
   saveProgress();
   renderAll();
-  setAdvice(
-    difficulty === "tutorial" ? "Как грузить" : "Тележка пуста",
-    difficulty === "tutorial"
-      ? "Начните с цветной бирки и протяните прямоугольник нужного размера. Значок на бирке задаёт форму."
-      : "Разместите все чемоданы так, чтобы закрыть 49 клеток без наложений.",
-    "info",
-  );
+  if (difficulty === "tutorial") {
+    setAdvice("advice.howTo.title", "advice.howTo.text");
+  } else {
+    setAdvice("advice.empty.title", "advice.empty.text");
+  }
 }
 
 function renderAll() {
@@ -115,6 +109,8 @@ function renderAll() {
   renderRegions();
   renderDraft();
   renderStatus();
+  renderAdvice();
+  renderCompletion();
 }
 
 function renderClues() {
@@ -130,9 +126,12 @@ function renderClues() {
     tag.className = `clue${cell.classList.contains("occupied") ? " attached" : ""}`;
     tag.style.setProperty("--clue", PALETTE[index % PALETTE.length]);
     tag.style.setProperty("--tilt", `${index % 2 ? 2 : -2}deg`);
+    const cells = I18N.unit("units.cells", clue.area);
     tag.setAttribute(
       "aria-label",
-      clue.shape ? `${clue.area} клеток, форма ${SHAPE_LABELS[clue.shape]}` : `${clue.area} клеток, любая форма`,
+      clue.shape
+        ? t("clue.ariaShape", { area: clue.area, cells, shape: t(`shape.${clue.shape}`) })
+        : t("clue.ariaAny", { area: clue.area, cells }),
     );
     tag.innerHTML = `<span>${clue.area}</span>${clue.shape ? `<span class="clue-shape" aria-hidden="true">${SHAPE_SYMBOLS[clue.shape]}</span>` : ""}`;
     cell.append(tag);
@@ -181,7 +180,7 @@ function renderDraft() {
 }
 
 function renderStatus() {
-  document.querySelector("#difficultyLabel").textContent = DIFFICULTY_LABELS[state.difficulty];
+  document.querySelector("#difficultyLabel").textContent = t(`difficulty.${state.difficulty}`);
   document.querySelector("#levelLabel").textContent = `${state.levelIndex + 1}/${state.banks[state.difficulty].length}`;
   document.querySelector("#bagCount").textContent = `${state.regions.length}/${state.level.solution.length}`;
   document.querySelector("#errorCount").textContent = String(state.errors);
@@ -196,12 +195,35 @@ function renderStatus() {
   });
 }
 
-function setAdvice(title, text, type = "info") {
+/* Words are looked up at render time, so switching the language also
+   re-translates — and re-declines — the advice already on screen.
+   A term is either a plain key or [key, count] for a counted noun. */
+function resolveParams({ params = {}, terms = {} }) {
+  const resolved = { ...params };
+  Object.entries(terms).forEach(([name, term]) => {
+    resolved[name] = Array.isArray(term) ? I18N.unit(term[0], term[1]) : t(term);
+  });
+  return resolved;
+}
+
+function setAdvice(title, text, type = "info", params = {}, terms = {}) {
+  state.advice = { title, text, type, params, terms };
+  renderAdvice();
+}
+
+function renderAdvice() {
+  const { title, text, type } = state.advice;
+  const params = resolveParams(state.advice);
   const advice = document.querySelector("#advice");
   advice.className = `advice ${type === "info" ? "" : type}`.trim();
-  document.querySelector("#adviceTitle").textContent = title;
-  document.querySelector("#adviceText").textContent = text;
+  document.querySelector("#adviceTitle").textContent = t(title, params);
+  document.querySelector("#adviceText").textContent = t(text, params);
   document.querySelector(".advice-icon").textContent = type === "error" ? "!" : type === "success" ? "✓" : "i";
+}
+
+function renderCompletion() {
+  if (!state.completion) return;
+  document.querySelector("#completeText").textContent = t("dialog.summary", state.completion);
 }
 
 function cellFromPointer(event) {
@@ -241,42 +263,38 @@ function cluesIn(rect) {
 
 function validateRect(rect) {
   if (state.regions.some((region) => overlaps(rect, region))) {
-    return { ok: false, title: "Место уже занято", text: "Чемоданы не могут лежать друг на друге. Нажмите на лишний чемодан, чтобы убрать его." };
+    return { ok: false, title: "advice.occupied.title", text: "advice.occupied.text" };
   }
   const clues = cluesIn(rect);
   if (clues.length === 0) {
-    return { ok: false, title: "Не хватает бирки", text: "Внутри каждого чемодана должна быть ровно одна цветная бирка." };
+    return { ok: false, title: "advice.noTag.title", text: "advice.noTag.text" };
   }
   if (clues.length > 1) {
-    return { ok: false, title: "Слишком много бирок", text: "Этот чемодан захватил несколько заданий. Уменьшите его до одной бирки." };
+    return { ok: false, title: "advice.manyTags.title", text: "advice.manyTags.text" };
   }
   const clue = clues[0];
   const area = rect.width * rect.height;
   if (area !== clue.area) {
     const delta = Math.abs(clue.area - area);
+    const kind = area < clue.area ? "tooSmall" : "tooBig";
     return {
       ok: false,
-      title: area < clue.area ? "Чемодан мал" : "Чемодан велик",
-      text: `На бирке ${clue.area}, а выделено ${area}. ${area < clue.area ? `Добавьте ${delta}` : `Уберите ${delta}`} ${cellWord(delta)}.`,
+      title: `advice.${kind}.title`,
+      text: `advice.${kind}.text`,
+      params: { required: clue.area, actual: area, delta },
+      terms: { cells: ["units.cellsAcc", delta] },
     };
   }
   const actualShape = shapeOf(rect);
   if (clue.shape && clue.shape !== actualShape) {
     return {
       ok: false,
-      title: "Не та форма",
-      text: `Бирка просит форму «${SHAPE_LABELS[clue.shape]}». Сейчас чемодан получился «${SHAPE_LABELS[actualShape]}».`,
+      title: "advice.wrongShape.title",
+      text: "advice.wrongShape.text",
+      terms: { expected: `shape.${clue.shape}`, actual: `shape.${actualShape}` },
     };
   }
   return { ok: true, clueIndex: clue.index };
-}
-
-function cellWord(value) {
-  const last = value % 10;
-  const lastTwo = value % 100;
-  if (last === 1 && lastTwo !== 11) return "клетку";
-  if (last >= 2 && last <= 4 && !(lastTwo >= 12 && lastTwo <= 14)) return "клетки";
-  return "клеток";
 }
 
 function snapshot() {
@@ -287,7 +305,7 @@ function snapshot() {
 function removeRegion(region) {
   snapshot();
   state.regions = state.regions.filter((item) => item.id !== region.id);
-  setAdvice("Чемодан снят", "Место снова свободно. Отмена вернёт последний снятый чемодан.", "info");
+  setAdvice("advice.removed.title", "advice.removed.text");
   renderAll();
 }
 
@@ -296,7 +314,7 @@ function addRect(rect) {
   if (!result.ok) {
     state.errors += 1;
     state.invalidDraft = rect;
-    setAdvice(result.title, result.text, "error");
+    setAdvice(result.title, result.text, "error", result.params, result.terms);
     renderAll();
     window.setTimeout(() => {
       if (state.invalidDraft === rect) {
@@ -308,7 +326,7 @@ function addRect(rect) {
   }
   snapshot();
   state.regions.push({ ...rect, clueIndex: result.clueIndex, id: crypto.randomUUID() });
-  setAdvice("Чемодан принят", `Бирка ${state.level.clues[result.clueIndex].area} закреплена. Продолжайте загрузку.`, "success");
+  setAdvice("advice.accepted.title", "advice.accepted.text", "success", { area: state.level.clues[result.clueIndex].area });
   renderAll();
   checkCompletion();
 }
@@ -323,7 +341,7 @@ function checkCompletion() {
   if (wrong.length) {
     state.errors += 1;
     wrong.forEach((region) => { region.wrong = true; });
-    setAdvice("Раскладка не сходится", "Размеры верны, но часть чемоданов стоит не на своих местах. Красные чемоданы стоит переставить.", "error");
+    setAdvice("advice.mismatch.title", "advice.mismatch.text", "error");
     renderAll();
     window.setTimeout(() => {
       wrong.forEach((region) => { delete region.wrong; });
@@ -332,21 +350,22 @@ function checkCompletion() {
     return;
   }
   const seconds = Math.floor((Date.now() - state.startedAt) / 1000);
-  document.querySelector("#completeText").textContent = `Все ${state.regions.length} чемоданов на месте за ${formatTime(seconds)}. Ошибок: ${state.errors}.`;
+  state.completion = { count: state.regions.length, time: formatTime(seconds), errors: state.errors };
+  renderCompletion();
   completeDialog.showModal();
 }
 
 function placeRegionsFromTool(input) {
-  if (!state.level) throw new Error("Уровень ещё не загружен");
+  if (!state.level) throw new Error(t("error.noLevel"));
   if (!input || !Array.isArray(input.regions) || input.regions.length < 1 || input.regions.length > 12) {
-    throw new Error("Передайте от 1 до 12 прямоугольных областей");
+    throw new Error(t("error.regionCount"));
   }
   const before = state.regions.map((region) => ({ ...region }));
   const prepared = input.regions.map((rect) => {
     const clean = { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
-    if (Object.values(clean).some((value) => !Number.isInteger(value))) throw new Error("Все координаты и размеры должны быть целыми числами");
+    if (Object.values(clean).some((value) => !Number.isInteger(value))) throw new Error(t("error.integers"));
     if (clean.x < 0 || clean.y < 0 || clean.width < 1 || clean.height < 1 || clean.x + clean.width > 7 || clean.y + clean.height > 7) {
-      throw new Error("Область выходит за границы поля 7×7");
+      throw new Error(t("error.outOfBounds"));
     }
     return clean;
   });
@@ -354,7 +373,10 @@ function placeRegionsFromTool(input) {
   try {
     prepared.forEach((rect) => {
       const result = validateRect(rect);
-      if (!result.ok) throw new Error(`${result.title}: ${result.text}`);
+      if (!result.ok) {
+        const params = resolveParams(result);
+        throw new Error(`${t(result.title, params)}: ${t(result.text, params)}`);
+      }
       state.regions.push({ ...rect, clueIndex: result.clueIndex, id: crypto.randomUUID() });
     });
   } catch (error) {
@@ -364,7 +386,7 @@ function placeRegionsFromTool(input) {
   }
 
   state.history.push(before);
-  setAdvice("Группа принята", `Добавлено чемоданов: ${prepared.length}.`, "success");
+  setAdvice("advice.group.title", "advice.group.text", "success", { count: prepared.length });
   renderAll();
   checkCompletion();
   return { added: prepared.length, placed: state.regions.length, required: state.level.solution.length };
@@ -379,8 +401,8 @@ function registerWebMcpTools() {
   const tools = [
     {
       name: "read_baggage_status",
-      title: "Статус загрузки",
-      description: "Возвращает текущую сложность, номер рейса и прогресс заполнения тележки Baggage Dolly.",
+      title: t("tool.status.title"),
+      description: t("tool.status.description"),
       inputSchema: { type: "object", properties: {}, additionalProperties: false },
       annotations: { readOnlyHint: true, untrustedContentHint: false },
       execute() {
@@ -395,8 +417,8 @@ function registerWebMcpTools() {
     },
     {
       name: "place_baggage_regions",
-      title: "Разместить чемоданы",
-      description: "Размещает одну или несколько прямоугольных областей на текущем поле по координатам от верхнего левого угла. Применяет те же правила, что и ручное рисование.",
+      title: t("tool.place.title"),
+      description: t("tool.place.description"),
       inputSchema: {
         type: "object",
         properties: {
@@ -510,7 +532,7 @@ board.addEventListener("pointercancel", () => {
 undoButton.addEventListener("click", () => {
   if (!state.history.length) return;
   state.regions = state.history.pop();
-  setAdvice("Ход отменён", "Предыдущее состояние тележки восстановлено.", "info");
+  setAdvice("advice.undone.title", "advice.undone.text");
   renderAll();
 });
 
@@ -518,14 +540,14 @@ clearButton.addEventListener("click", () => {
   if (!state.regions.length) return;
   snapshot();
   state.regions = [];
-  setAdvice("Тележка очищена", "Можно начать раскладку заново. Отмена вернёт все чемоданы.", "info");
+  setAdvice("advice.cleared.title", "advice.cleared.text");
   renderAll();
 });
 
 hintButton.addEventListener("click", () => {
   const target = state.level.solution.find((solution) => !state.regions.some((region) => sameRect(region, solution)));
   if (!target) {
-    setAdvice("Подсказка не нужна", "Все правильные чемоданы уже на поле.", "success");
+    setAdvice("advice.hintUseless.title", "advice.hintUseless.text", "success");
     return;
   }
   snapshot();
@@ -533,7 +555,8 @@ hintButton.addEventListener("click", () => {
   state.regions = state.regions.filter((region) => !overlaps(region, target));
   const clue = cluesIn(target)[0];
   state.regions.push({ ...target, clueIndex: clue.index, id: crypto.randomUUID(), hinted: true });
-  setAdvice("Чемодан от диспетчера", `Показана область на ${target.width * target.height} клеток. Остальные найдите сами.`, "success");
+  const area = target.width * target.height;
+  setAdvice("advice.hint.title", "advice.hint.text", "success", { area }, { cells: ["units.cellsAcc", area] });
   renderAll();
   window.setTimeout(() => {
     state.regions.forEach((region) => { delete region.hinted; });
@@ -548,9 +571,18 @@ document.querySelector("#nextButton").addEventListener("click", () => {
   beginLevel(difficulty, index);
 });
 
+/* A new language redraws every string that JavaScript owns; the static
+   markup is handled by the translator itself. */
+I18N.onChange(() => {
+  if (state.level) renderAll();
+  else renderAdvice();
+});
+
 async function start() {
   makeCells();
   loadProgress();
+  I18N.mountPicker(document.querySelector("#langSelect"));
+  renderAdvice();
   try {
     await Promise.all([loadBanks(), LuggageRenderer.ready]);
     beginLevel(state.difficulty, state.levelIndex);
@@ -559,7 +591,7 @@ async function start() {
       document.querySelector("#timer").textContent = formatTime(Math.floor((Date.now() - state.startedAt) / 1000));
     }, 1000);
   } catch (error) {
-    setAdvice("Не удалось открыть смену", "Обновите страницу: уровни временно не загрузились.", "error");
+    setAdvice("advice.loadError.title", "advice.loadError.text", "error");
     console.error(error);
   }
 }

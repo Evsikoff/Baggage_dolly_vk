@@ -8,7 +8,13 @@ const LuggageRenderer = (() => {
     return image;
   });
   const tinted = new Map();
-  const ready = Promise.all(sources.map((image) => image.decode()));
+  /* Load events, not decode(): a browser defers decoding while the tab is
+     hidden, and the shift must still be ready when the player comes back. */
+  const ready = Promise.all(sources.map((image) => new Promise((resolve) => {
+    if (image.complete) resolve();
+    else image.addEventListener("load", resolve, { once: true });
+    image.addEventListener("error", resolve, { once: true });
+  })));
 
   function skinFor(index, color) {
     const material = index % 3 === 1 ? 1 : 0;

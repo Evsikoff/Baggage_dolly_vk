@@ -1,0 +1,619 @@
+/* Every user-facing string of Baggage Dolly lives in this file.
+   To add a language: append it to LANGUAGES and copy one STRINGS block.
+   A value is either a string or an object of plural forms keyed by the
+   categories of Intl.PluralRules ("one", "few", "many", "other").
+   Placeholders are written as {name} and filled from the params object.
+   Russian needs two forms of "cell": units.cells is the nominative used
+   after a bare number, units.cellsAcc is the accusative used after a verb
+   ("add 2 cells"). In the other languages both forms are identical. */
+const I18N = (() => {
+  const STORAGE_KEY = "baggage-dolly-language";
+  const FALLBACK = "en";
+
+  const LANGUAGES = [
+    { code: "en", name: "English" },
+    { code: "ru", name: "Русский" },
+    { code: "de", name: "Deutsch" },
+    { code: "es", name: "Español" },
+    { code: "fr", name: "Français" },
+  ];
+
+  const STRINGS = {
+    en: {
+      "meta.title": "Baggage Dolly",
+      "meta.description": "Baggage Dolly — a puzzle about stacking luggage on an airport baggage cart.",
+      "brand.name": "Baggage Dolly",
+      "brand.tagline": "Apron shift",
+      "brand.restart": "Baggage Dolly — start over",
+      "lang.label": "Interface language",
+      "status.aria": "Current level",
+      "status.flight": "flight",
+      "status.timer": "Elapsed time",
+      "route.aria": "Difficulty route",
+      "difficulty.tutorial": "Tutorial",
+      "difficulty.easy": "Easy",
+      "difficulty.medium": "Medium",
+      "difficulty.hard": "Hard",
+      "difficulty.expert": "Expert",
+      "workspace.aria": "Loading shift",
+      "board.aria": "A 7 by 7 field. Drag from one cell to another to outline a rectangular suitcase.",
+      "tug.alt": "Baggage tug hitched to the dolly",
+      "help.mobile": "Swipe across the cells to outline a suitcase.",
+      "briefing.eyebrow": "Dispatcher's task",
+      "briefing.title": "Load the baggage without gaps",
+      "briefing.text": "Start from a tag. The number is the suitcase size in cells, the icon is its shape.",
+      "controls.aria": "Game controls",
+      "controls.undo": "Undo",
+      "controls.undoHint": "Undo the last move",
+      "controls.clear": "Clear",
+      "controls.clearHint": "Remove every suitcase",
+      "controls.hint": "Hint",
+      "controls.hintHint": "Reveal one correct suitcase",
+      "legend.title": "What the tag says",
+      "legend.note": "With no icon, only the size matters.",
+      "shape.square": "square",
+      "shape.horizontal": "lengthwise",
+      "shape.vertical": "crosswise",
+      "stats.cases": "Suitcases",
+      "stats.errors": "Mistakes",
+      "dialog.eyebrow": "The dolly is ready",
+      "dialog.title": "Baggage accepted",
+      "dialog.text": "Every suitcase is in place.",
+      "dialog.summary": {
+        one: "{count} suitcase placed in {time}. Mistakes: {errors}.",
+        other: "All {count} suitcases placed in {time}. Mistakes: {errors}.",
+      },
+      "dialog.next": "Next flight",
+      "units.cells": { one: "cell", other: "cells" },
+      "units.cellsAcc": { one: "cell", other: "cells" },
+      "clue.ariaShape": "{area} {cells}, shape {shape}",
+      "clue.ariaAny": "{area} {cells}, any shape",
+      "advice.start.title": "How to load",
+      "advice.start.text": "Hold a cell and drag across a rectangle. Exactly one colored tag must stay inside it.",
+      "advice.howTo.title": "How to load",
+      "advice.howTo.text": "Start from a colored tag and drag a rectangle of the right size. The icon on the tag sets the shape.",
+      "advice.empty.title": "The dolly is empty",
+      "advice.empty.text": "Place every suitcase so that all 49 cells are covered without overlaps.",
+      "advice.occupied.title": "The spot is taken",
+      "advice.occupied.text": "Suitcases cannot lie on top of each other. Tap the extra suitcase to take it off.",
+      "advice.noTag.title": "No tag inside",
+      "advice.noTag.text": "Every suitcase must hold exactly one colored tag.",
+      "advice.manyTags.title": "Too many tags",
+      "advice.manyTags.text": "This suitcase grabbed several tasks. Shrink it down to a single tag.",
+      "advice.tooSmall.title": "The suitcase is too small",
+      "advice.tooSmall.text": "The tag says {required}, you outlined {actual}. Add {delta} more {cells}.",
+      "advice.tooBig.title": "The suitcase is too big",
+      "advice.tooBig.text": "The tag says {required}, you outlined {actual}. Remove {delta} {cells}.",
+      "advice.wrongShape.title": "Wrong shape",
+      "advice.wrongShape.text": "The tag asks for a “{expected}” suitcase. This one came out “{actual}”.",
+      "advice.removed.title": "Suitcase taken off",
+      "advice.removed.text": "The spot is free again. Undo brings the last suitcase back.",
+      "advice.accepted.title": "Suitcase accepted",
+      "advice.accepted.text": "Tag {area} is secured. Keep loading.",
+      "advice.mismatch.title": "The layout does not add up",
+      "advice.mismatch.text": "The sizes are right, but some suitcases sit in the wrong places. Move the red ones.",
+      "advice.undone.title": "Move undone",
+      "advice.undone.text": "The previous state of the dolly is restored.",
+      "advice.cleared.title": "The dolly is cleared",
+      "advice.cleared.text": "You can start the layout over. Undo brings every suitcase back.",
+      "advice.hintUseless.title": "No hint needed",
+      "advice.hintUseless.text": "Every correct suitcase is already on the field.",
+      "advice.hint.title": "A suitcase from the dispatcher",
+      "advice.hint.text": "An area of {area} {cells} is revealed. Find the rest yourself.",
+      "advice.group.title": "Batch accepted",
+      "advice.group.text": {
+        one: "{count} suitcase added.",
+        other: "{count} suitcases added.",
+      },
+      "advice.loadError.title": "The shift could not start",
+      "advice.loadError.text": "Reload the page: the levels did not load this time.",
+      "error.levelFetch": "Could not load {path}",
+      "error.noLevel": "The level is not loaded yet",
+      "error.regionCount": "Pass between 1 and 12 rectangular regions",
+      "error.integers": "All coordinates and sizes must be whole numbers",
+      "error.outOfBounds": "The region leaves the 7×7 field",
+      "tool.status.title": "Loading status",
+      "tool.status.description": "Returns the current difficulty, flight number and how full the Baggage Dolly cart is.",
+      "tool.place.title": "Place suitcases",
+      "tool.place.description": "Places one or more rectangular regions on the current field, using coordinates from the top left corner. Applies the same rules as drawing by hand.",
+    },
+
+    ru: {
+      "meta.title": "Baggage Dolly",
+      "meta.description": "Baggage Dolly — головоломка об укладке багажа на аэродромную тележку.",
+      "brand.name": "Baggage Dolly",
+      "brand.tagline": "Смена на перроне",
+      "brand.restart": "Baggage Dolly — начать заново",
+      "lang.label": "Язык интерфейса",
+      "status.aria": "Текущий уровень",
+      "status.flight": "рейс",
+      "status.timer": "Время прохождения",
+      "route.aria": "Маршрут сложности",
+      "difficulty.tutorial": "Обучение",
+      "difficulty.easy": "Просто",
+      "difficulty.medium": "Средне",
+      "difficulty.hard": "Сложно",
+      "difficulty.expert": "Эксперт",
+      "workspace.aria": "Игровая смена",
+      "board.aria": "Поле 7 на 7. Проведите от одной клетки до другой, чтобы создать прямоугольный чемодан.",
+      "tug.alt": "Багажный тягач, сцепленный с тележкой",
+      "help.mobile": "Проведите пальцем по клеткам, чтобы собрать чемодан.",
+      "briefing.eyebrow": "Задание диспетчера",
+      "briefing.title": "Уложите багаж без пробелов",
+      "briefing.text": "Начните с бирки. Число показывает размер чемодана в клетках, значок — его форму.",
+      "controls.aria": "Управление игрой",
+      "controls.undo": "Отменить",
+      "controls.undoHint": "Отменить последний ход",
+      "controls.clear": "Очистить",
+      "controls.clearHint": "Убрать все чемоданы",
+      "controls.hint": "Подсказка",
+      "controls.hintHint": "Показать один подходящий чемодан",
+      "legend.title": "Что на бирке",
+      "legend.note": "Если значка нет, важен только размер.",
+      "shape.square": "квадрат",
+      "shape.horizontal": "вдоль",
+      "shape.vertical": "поперёк",
+      "stats.cases": "Чемоданы",
+      "stats.errors": "Ошибки",
+      "dialog.eyebrow": "Тележка готова",
+      "dialog.title": "Багаж принят",
+      "dialog.text": "Все чемоданы на своих местах.",
+      "dialog.summary": {
+        one: "{count} чемодан на месте за {time}. Ошибок: {errors}.",
+        few: "{count} чемодана на месте за {time}. Ошибок: {errors}.",
+        many: "Все {count} чемоданов на месте за {time}. Ошибок: {errors}.",
+      },
+      "dialog.next": "Следующий рейс",
+      "units.cells": { one: "клетка", few: "клетки", many: "клеток" },
+      "units.cellsAcc": { one: "клетку", few: "клетки", many: "клеток" },
+      "clue.ariaShape": "{area} {cells}, форма {shape}",
+      "clue.ariaAny": "{area} {cells}, любая форма",
+      "advice.start.title": "Как грузить",
+      "advice.start.text": "Зажмите клетку и тяните по прямоугольнику. Внутри должна остаться ровно одна цветная бирка.",
+      "advice.howTo.title": "Как грузить",
+      "advice.howTo.text": "Начните с цветной бирки и протяните прямоугольник нужного размера. Значок на бирке задаёт форму.",
+      "advice.empty.title": "Тележка пуста",
+      "advice.empty.text": "Разместите все чемоданы так, чтобы закрыть 49 клеток без наложений.",
+      "advice.occupied.title": "Место уже занято",
+      "advice.occupied.text": "Чемоданы не могут лежать друг на друге. Нажмите на лишний чемодан, чтобы убрать его.",
+      "advice.noTag.title": "Не хватает бирки",
+      "advice.noTag.text": "Внутри каждого чемодана должна быть ровно одна цветная бирка.",
+      "advice.manyTags.title": "Слишком много бирок",
+      "advice.manyTags.text": "Этот чемодан захватил несколько заданий. Уменьшите его до одной бирки.",
+      "advice.tooSmall.title": "Чемодан мал",
+      "advice.tooSmall.text": "На бирке {required}, а выделено {actual}. Добавьте {delta} {cells}.",
+      "advice.tooBig.title": "Чемодан велик",
+      "advice.tooBig.text": "На бирке {required}, а выделено {actual}. Уберите {delta} {cells}.",
+      "advice.wrongShape.title": "Не та форма",
+      "advice.wrongShape.text": "Бирка просит форму «{expected}». Сейчас чемодан получился «{actual}».",
+      "advice.removed.title": "Чемодан снят",
+      "advice.removed.text": "Место снова свободно. Отмена вернёт последний снятый чемодан.",
+      "advice.accepted.title": "Чемодан принят",
+      "advice.accepted.text": "Бирка {area} закреплена. Продолжайте загрузку.",
+      "advice.mismatch.title": "Раскладка не сходится",
+      "advice.mismatch.text": "Размеры верны, но часть чемоданов стоит не на своих местах. Красные чемоданы стоит переставить.",
+      "advice.undone.title": "Ход отменён",
+      "advice.undone.text": "Предыдущее состояние тележки восстановлено.",
+      "advice.cleared.title": "Тележка очищена",
+      "advice.cleared.text": "Можно начать раскладку заново. Отмена вернёт все чемоданы.",
+      "advice.hintUseless.title": "Подсказка не нужна",
+      "advice.hintUseless.text": "Все правильные чемоданы уже на поле.",
+      "advice.hint.title": "Чемодан от диспетчера",
+      "advice.hint.text": "Показана область на {area} {cells}. Остальные найдите сами.",
+      "advice.group.title": "Группа принята",
+      "advice.group.text": {
+        one: "Добавлен {count} чемодан.",
+        few: "Добавлено {count} чемодана.",
+        many: "Добавлено {count} чемоданов.",
+      },
+      "advice.loadError.title": "Не удалось открыть смену",
+      "advice.loadError.text": "Обновите страницу: уровни временно не загрузились.",
+      "error.levelFetch": "Не удалось загрузить {path}",
+      "error.noLevel": "Уровень ещё не загружен",
+      "error.regionCount": "Передайте от 1 до 12 прямоугольных областей",
+      "error.integers": "Все координаты и размеры должны быть целыми числами",
+      "error.outOfBounds": "Область выходит за границы поля 7×7",
+      "tool.status.title": "Статус загрузки",
+      "tool.status.description": "Возвращает текущую сложность, номер рейса и прогресс заполнения тележки Baggage Dolly.",
+      "tool.place.title": "Разместить чемоданы",
+      "tool.place.description": "Размещает одну или несколько прямоугольных областей на текущем поле по координатам от верхнего левого угла. Применяет те же правила, что и ручное рисование.",
+    },
+
+    de: {
+      "meta.title": "Baggage Dolly",
+      "meta.description": "Baggage Dolly — ein Rätsel über das Beladen eines Gepäckwagens am Flughafen.",
+      "brand.name": "Baggage Dolly",
+      "brand.tagline": "Schicht am Vorfeld",
+      "brand.restart": "Baggage Dolly — neu starten",
+      "lang.label": "Sprache der Oberfläche",
+      "status.aria": "Aktuelles Level",
+      "status.flight": "Flug",
+      "status.timer": "Gespielte Zeit",
+      "route.aria": "Schwierigkeitsstufen",
+      "difficulty.tutorial": "Training",
+      "difficulty.easy": "Leicht",
+      "difficulty.medium": "Mittel",
+      "difficulty.hard": "Schwer",
+      "difficulty.expert": "Experte",
+      "workspace.aria": "Beladeschicht",
+      "board.aria": "Spielfeld 7 mal 7. Ziehen Sie von einer Zelle zur anderen, um einen rechteckigen Koffer zu umranden.",
+      "tug.alt": "Gepäckschlepper, an den Wagen gekuppelt",
+      "help.mobile": "Wischen Sie über die Zellen, um einen Koffer zu umranden.",
+      "briefing.eyebrow": "Auftrag der Leitstelle",
+      "briefing.title": "Laden Sie das Gepäck ohne Lücken",
+      "briefing.text": "Beginnen Sie mit einem Anhänger. Die Zahl ist die Koffergröße in Zellen, das Zeichen die Form.",
+      "controls.aria": "Spielsteuerung",
+      "controls.undo": "Zurück",
+      "controls.undoHint": "Letzten Zug zurücknehmen",
+      "controls.clear": "Leeren",
+      "controls.clearHint": "Alle Koffer entfernen",
+      "controls.hint": "Tipp",
+      "controls.hintHint": "Einen passenden Koffer zeigen",
+      "legend.title": "Was auf dem Anhänger steht",
+      "legend.note": "Ohne Zeichen zählt nur die Größe.",
+      "shape.square": "Quadrat",
+      "shape.horizontal": "längs",
+      "shape.vertical": "quer",
+      "stats.cases": "Koffer",
+      "stats.errors": "Fehler",
+      "dialog.eyebrow": "Der Wagen ist fertig",
+      "dialog.title": "Gepäck angenommen",
+      "dialog.text": "Alle Koffer liegen an ihrem Platz.",
+      "dialog.summary": {
+        one: "{count} Koffer in {time} verladen. Fehler: {errors}.",
+        other: "Alle {count} Koffer in {time} verladen. Fehler: {errors}.",
+      },
+      "dialog.next": "Nächster Flug",
+      "units.cells": { one: "Zelle", other: "Zellen" },
+      "units.cellsAcc": { one: "Zelle", other: "Zellen" },
+      "clue.ariaShape": "{area} {cells}, Form {shape}",
+      "clue.ariaAny": "{area} {cells}, beliebige Form",
+      "advice.start.title": "So wird geladen",
+      "advice.start.text": "Halten Sie eine Zelle gedrückt und ziehen Sie ein Rechteck auf. Genau ein farbiger Anhänger muss darin bleiben.",
+      "advice.howTo.title": "So wird geladen",
+      "advice.howTo.text": "Beginnen Sie an einem farbigen Anhänger und ziehen Sie ein Rechteck in der passenden Größe. Das Zeichen gibt die Form vor.",
+      "advice.empty.title": "Der Wagen ist leer",
+      "advice.empty.text": "Verteilen Sie alle Koffer so, dass 49 Zellen ohne Überlappung bedeckt sind.",
+      "advice.occupied.title": "Der Platz ist belegt",
+      "advice.occupied.text": "Koffer dürfen nicht übereinander liegen. Tippen Sie den überflüssigen Koffer an, um ihn zu entfernen.",
+      "advice.noTag.title": "Kein Anhänger darin",
+      "advice.noTag.text": "In jedem Koffer muss genau ein farbiger Anhänger liegen.",
+      "advice.manyTags.title": "Zu viele Anhänger",
+      "advice.manyTags.text": "Dieser Koffer deckt mehrere Aufgaben ab. Verkleinern Sie ihn auf einen Anhänger.",
+      "advice.tooSmall.title": "Der Koffer ist zu klein",
+      "advice.tooSmall.text": "Auf dem Anhänger steht {required}, markiert sind {actual}. Fügen Sie {delta} {cells} hinzu.",
+      "advice.tooBig.title": "Der Koffer ist zu groß",
+      "advice.tooBig.text": "Auf dem Anhänger steht {required}, markiert sind {actual}. Entfernen Sie {delta} {cells}.",
+      "advice.wrongShape.title": "Falsche Form",
+      "advice.wrongShape.text": "Der Anhänger verlangt die Form „{expected}“. Dieser Koffer ist „{actual}“ geworden.",
+      "advice.removed.title": "Koffer abgeladen",
+      "advice.removed.text": "Der Platz ist wieder frei. Zurück holt den letzten Koffer zurück.",
+      "advice.accepted.title": "Koffer angenommen",
+      "advice.accepted.text": "Anhänger {area} ist gesichert. Laden Sie weiter.",
+      "advice.mismatch.title": "Die Aufteilung geht nicht auf",
+      "advice.mismatch.text": "Die Größen stimmen, aber einige Koffer stehen am falschen Platz. Stellen Sie die roten Koffer um.",
+      "advice.undone.title": "Zug zurückgenommen",
+      "advice.undone.text": "Der vorherige Zustand des Wagens ist wiederhergestellt.",
+      "advice.cleared.title": "Der Wagen ist leer geräumt",
+      "advice.cleared.text": "Sie können neu beginnen. Zurück holt alle Koffer wieder.",
+      "advice.hintUseless.title": "Kein Tipp nötig",
+      "advice.hintUseless.text": "Alle richtigen Koffer liegen bereits auf dem Feld.",
+      "advice.hint.title": "Ein Koffer von der Leitstelle",
+      "advice.hint.text": "Eine Fläche von {area} {cells} ist aufgedeckt. Den Rest finden Sie selbst.",
+      "advice.group.title": "Gruppe angenommen",
+      "advice.group.text": {
+        one: "{count} Koffer hinzugefügt.",
+        other: "{count} Koffer hinzugefügt.",
+      },
+      "advice.loadError.title": "Die Schicht konnte nicht beginnen",
+      "advice.loadError.text": "Laden Sie die Seite neu: die Level wurden diesmal nicht geladen.",
+      "error.levelFetch": "{path} konnte nicht geladen werden",
+      "error.noLevel": "Das Level ist noch nicht geladen",
+      "error.regionCount": "Übergeben Sie 1 bis 12 rechteckige Bereiche",
+      "error.integers": "Alle Koordinaten und Größen müssen ganze Zahlen sein",
+      "error.outOfBounds": "Der Bereich verlässt das Feld 7×7",
+      "tool.status.title": "Ladestatus",
+      "tool.status.description": "Gibt die aktuelle Schwierigkeit, die Flugnummer und den Beladungsfortschritt des Baggage-Dolly-Wagens zurück.",
+      "tool.place.title": "Koffer platzieren",
+      "tool.place.description": "Platziert einen oder mehrere rechteckige Bereiche auf dem aktuellen Feld, mit Koordinaten ab der linken oberen Ecke. Es gelten dieselben Regeln wie beim Zeichnen von Hand.",
+    },
+
+    es: {
+      "meta.title": "Baggage Dolly",
+      "meta.description": "Baggage Dolly: un rompecabezas sobre cargar equipaje en un carro de aeropuerto.",
+      "brand.name": "Baggage Dolly",
+      "brand.tagline": "Turno en la plataforma",
+      "brand.restart": "Baggage Dolly: empezar de nuevo",
+      "lang.label": "Idioma de la interfaz",
+      "status.aria": "Nivel actual",
+      "status.flight": "vuelo",
+      "status.timer": "Tiempo de juego",
+      "route.aria": "Ruta de dificultad",
+      "difficulty.tutorial": "Tutorial",
+      "difficulty.easy": "Fácil",
+      "difficulty.medium": "Medio",
+      "difficulty.hard": "Difícil",
+      "difficulty.expert": "Experto",
+      "workspace.aria": "Turno de carga",
+      "board.aria": "Tablero de 7 por 7. Arrastre de una casilla a otra para trazar una maleta rectangular.",
+      "tug.alt": "Tractor de equipajes enganchado al carro",
+      "help.mobile": "Deslice el dedo por las casillas para trazar una maleta.",
+      "briefing.eyebrow": "Orden del despachador",
+      "briefing.title": "Cargue el equipaje sin huecos",
+      "briefing.text": "Empiece por una etiqueta. El número indica el tamaño de la maleta en casillas y el icono, su forma.",
+      "controls.aria": "Controles del juego",
+      "controls.undo": "Deshacer",
+      "controls.undoHint": "Deshacer el último movimiento",
+      "controls.clear": "Limpiar",
+      "controls.clearHint": "Quitar todas las maletas",
+      "controls.hint": "Pista",
+      "controls.hintHint": "Mostrar una maleta correcta",
+      "legend.title": "Qué dice la etiqueta",
+      "legend.note": "Sin icono, solo importa el tamaño.",
+      "shape.square": "cuadrado",
+      "shape.horizontal": "a lo largo",
+      "shape.vertical": "a lo ancho",
+      "stats.cases": "Maletas",
+      "stats.errors": "Errores",
+      "dialog.eyebrow": "El carro está listo",
+      "dialog.title": "Equipaje aceptado",
+      "dialog.text": "Todas las maletas están en su sitio.",
+      "dialog.summary": {
+        one: "{count} maleta colocada en {time}. Errores: {errors}.",
+        other: "{count} maletas colocadas en {time}. Errores: {errors}.",
+      },
+      "dialog.next": "Siguiente vuelo",
+      "units.cells": { one: "casilla", other: "casillas" },
+      "units.cellsAcc": { one: "casilla", other: "casillas" },
+      "clue.ariaShape": "{area} {cells}, forma {shape}",
+      "clue.ariaAny": "{area} {cells}, cualquier forma",
+      "advice.start.title": "Cómo cargar",
+      "advice.start.text": "Mantenga pulsada una casilla y arrastre un rectángulo. Dentro debe quedar exactamente una etiqueta de color.",
+      "advice.howTo.title": "Cómo cargar",
+      "advice.howTo.text": "Empiece en una etiqueta de color y trace un rectángulo del tamaño pedido. El icono de la etiqueta fija la forma.",
+      "advice.empty.title": "El carro está vacío",
+      "advice.empty.text": "Coloque todas las maletas hasta cubrir las 49 casillas sin solapamientos.",
+      "advice.occupied.title": "El sitio ya está ocupado",
+      "advice.occupied.text": "Las maletas no pueden superponerse. Toque la maleta sobrante para retirarla.",
+      "advice.noTag.title": "Falta la etiqueta",
+      "advice.noTag.text": "Cada maleta debe contener exactamente una etiqueta de color.",
+      "advice.manyTags.title": "Demasiadas etiquetas",
+      "advice.manyTags.text": "Esta maleta abarca varias tareas. Redúzcala hasta dejar una sola etiqueta.",
+      "advice.tooSmall.title": "La maleta es pequeña",
+      "advice.tooSmall.text": "La etiqueta pide {required} y ha marcado {actual}. Añada {delta} {cells}.",
+      "advice.tooBig.title": "La maleta es grande",
+      "advice.tooBig.text": "La etiqueta pide {required} y ha marcado {actual}. Quite {delta} {cells}.",
+      "advice.wrongShape.title": "Forma incorrecta",
+      "advice.wrongShape.text": "La etiqueta pide la forma «{expected}». Esta maleta ha salido «{actual}».",
+      "advice.removed.title": "Maleta retirada",
+      "advice.removed.text": "El sitio vuelve a estar libre. Deshacer devuelve la última maleta.",
+      "advice.accepted.title": "Maleta aceptada",
+      "advice.accepted.text": "La etiqueta {area} queda fijada. Siga cargando.",
+      "advice.mismatch.title": "La distribución no cuadra",
+      "advice.mismatch.text": "Los tamaños son correctos, pero algunas maletas están en el sitio equivocado. Mueva las rojas.",
+      "advice.undone.title": "Movimiento deshecho",
+      "advice.undone.text": "Se ha restaurado el estado anterior del carro.",
+      "advice.cleared.title": "Carro vaciado",
+      "advice.cleared.text": "Puede empezar la distribución de nuevo. Deshacer devuelve todas las maletas.",
+      "advice.hintUseless.title": "No hace falta pista",
+      "advice.hintUseless.text": "Todas las maletas correctas ya están en el tablero.",
+      "advice.hint.title": "Una maleta del despachador",
+      "advice.hint.text": "Se muestra un área de {area} {cells}. Busque las demás usted mismo.",
+      "advice.group.title": "Grupo aceptado",
+      "advice.group.text": {
+        one: "Se ha añadido {count} maleta.",
+        other: "Se han añadido {count} maletas.",
+      },
+      "advice.loadError.title": "No se pudo abrir el turno",
+      "advice.loadError.text": "Actualice la página: los niveles no se han cargado esta vez.",
+      "error.levelFetch": "No se pudo cargar {path}",
+      "error.noLevel": "El nivel aún no está cargado",
+      "error.regionCount": "Pase entre 1 y 12 áreas rectangulares",
+      "error.integers": "Todas las coordenadas y tamaños deben ser números enteros",
+      "error.outOfBounds": "El área se sale del tablero de 7×7",
+      "tool.status.title": "Estado de la carga",
+      "tool.status.description": "Devuelve la dificultad actual, el número de vuelo y el progreso de llenado del carro de Baggage Dolly.",
+      "tool.place.title": "Colocar maletas",
+      "tool.place.description": "Coloca una o varias áreas rectangulares en el tablero actual, con coordenadas desde la esquina superior izquierda. Aplica las mismas reglas que el trazado manual.",
+    },
+
+    fr: {
+      "meta.title": "Baggage Dolly",
+      "meta.description": "Baggage Dolly — un casse-tête sur le chargement des bagages sur un chariot d'aéroport.",
+      "brand.name": "Baggage Dolly",
+      "brand.tagline": "Service sur le tarmac",
+      "brand.restart": "Baggage Dolly — recommencer",
+      "lang.label": "Langue de l'interface",
+      "status.aria": "Niveau actuel",
+      "status.flight": "vol",
+      "status.timer": "Temps de jeu",
+      "route.aria": "Parcours de difficulté",
+      "difficulty.tutorial": "Tutoriel",
+      "difficulty.easy": "Facile",
+      "difficulty.medium": "Moyen",
+      "difficulty.hard": "Difficile",
+      "difficulty.expert": "Expert",
+      "workspace.aria": "Service de chargement",
+      "board.aria": "Grille de 7 sur 7. Faites glisser d'une case à l'autre pour tracer une valise rectangulaire.",
+      "tug.alt": "Tracteur à bagages attelé au chariot",
+      "help.mobile": "Faites glisser le doigt sur les cases pour tracer une valise.",
+      "briefing.eyebrow": "Consigne du régulateur",
+      "briefing.title": "Chargez les bagages sans trous",
+      "briefing.text": "Commencez par une étiquette. Le nombre indique la taille de la valise en cases, le symbole sa forme.",
+      "controls.aria": "Commandes du jeu",
+      "controls.undo": "Annuler",
+      "controls.undoHint": "Annuler le dernier coup",
+      "controls.clear": "Vider",
+      "controls.clearHint": "Retirer toutes les valises",
+      "controls.hint": "Indice",
+      "controls.hintHint": "Montrer une valise correcte",
+      "legend.title": "Ce que dit l'étiquette",
+      "legend.note": "Sans symbole, seule la taille compte.",
+      "shape.square": "carré",
+      "shape.horizontal": "en longueur",
+      "shape.vertical": "en largeur",
+      "stats.cases": "Valises",
+      "stats.errors": "Erreurs",
+      "dialog.eyebrow": "Le chariot est prêt",
+      "dialog.title": "Bagages acceptés",
+      "dialog.text": "Chaque valise est à sa place.",
+      "dialog.summary": {
+        one: "{count} valise en place en {time}. Erreurs : {errors}.",
+        other: "{count} valises en place en {time}. Erreurs : {errors}.",
+      },
+      "dialog.next": "Vol suivant",
+      "units.cells": { one: "case", other: "cases" },
+      "units.cellsAcc": { one: "case", other: "cases" },
+      "clue.ariaShape": "{area} {cells}, forme {shape}",
+      "clue.ariaAny": "{area} {cells}, forme libre",
+      "advice.start.title": "Comment charger",
+      "advice.start.text": "Maintenez une case et tracez un rectangle. Il doit contenir exactement une étiquette de couleur.",
+      "advice.howTo.title": "Comment charger",
+      "advice.howTo.text": "Partez d'une étiquette de couleur et tracez un rectangle à la bonne taille. Le symbole de l'étiquette impose la forme.",
+      "advice.empty.title": "Le chariot est vide",
+      "advice.empty.text": "Placez toutes les valises pour couvrir les 49 cases sans chevauchement.",
+      "advice.occupied.title": "La place est déjà prise",
+      "advice.occupied.text": "Les valises ne peuvent pas se chevaucher. Touchez la valise en trop pour la retirer.",
+      "advice.noTag.title": "Étiquette manquante",
+      "advice.noTag.text": "Chaque valise doit contenir exactement une étiquette de couleur.",
+      "advice.manyTags.title": "Trop d'étiquettes",
+      "advice.manyTags.text": "Cette valise recouvre plusieurs consignes. Réduisez-la à une seule étiquette.",
+      "advice.tooSmall.title": "La valise est trop petite",
+      "advice.tooSmall.text": "L'étiquette demande {required}, vous avez tracé {actual}. Ajoutez {delta} {cells}.",
+      "advice.tooBig.title": "La valise est trop grande",
+      "advice.tooBig.text": "L'étiquette demande {required}, vous avez tracé {actual}. Retirez {delta} {cells}.",
+      "advice.wrongShape.title": "Mauvaise forme",
+      "advice.wrongShape.text": "L'étiquette demande la forme « {expected} ». Cette valise est « {actual} ».",
+      "advice.removed.title": "Valise retirée",
+      "advice.removed.text": "La place est de nouveau libre. Annuler ramène la dernière valise.",
+      "advice.accepted.title": "Valise acceptée",
+      "advice.accepted.text": "L'étiquette {area} est fixée. Continuez le chargement.",
+      "advice.mismatch.title": "La répartition ne tombe pas juste",
+      "advice.mismatch.text": "Les tailles sont bonnes, mais certaines valises ne sont pas à leur place. Déplacez les rouges.",
+      "advice.undone.title": "Coup annulé",
+      "advice.undone.text": "L'état précédent du chariot est rétabli.",
+      "advice.cleared.title": "Chariot vidé",
+      "advice.cleared.text": "Vous pouvez recommencer la répartition. Annuler ramène toutes les valises.",
+      "advice.hintUseless.title": "Pas besoin d'indice",
+      "advice.hintUseless.text": "Toutes les bonnes valises sont déjà sur la grille.",
+      "advice.hint.title": "Une valise du régulateur",
+      "advice.hint.text": "Une zone de {area} {cells} est dévoilée. Trouvez les autres vous-même.",
+      "advice.group.title": "Groupe accepté",
+      "advice.group.text": {
+        one: "{count} valise ajoutée.",
+        other: "{count} valises ajoutées.",
+      },
+      "advice.loadError.title": "Le service n'a pas pu commencer",
+      "advice.loadError.text": "Rechargez la page : les niveaux ne se sont pas chargés cette fois.",
+      "error.levelFetch": "Impossible de charger {path}",
+      "error.noLevel": "Le niveau n'est pas encore chargé",
+      "error.regionCount": "Transmettez de 1 à 12 zones rectangulaires",
+      "error.integers": "Toutes les coordonnées et tailles doivent être des nombres entiers",
+      "error.outOfBounds": "La zone sort de la grille 7×7",
+      "tool.status.title": "État du chargement",
+      "tool.status.description": "Renvoie la difficulté en cours, le numéro de vol et la progression du remplissage du chariot Baggage Dolly.",
+      "tool.place.title": "Placer des valises",
+      "tool.place.description": "Place une ou plusieurs zones rectangulaires sur la grille actuelle, en coordonnées depuis le coin supérieur gauche. Applique les mêmes règles que le tracé manuel.",
+    },
+  };
+
+  const ATTRIBUTES = ["aria-label", "title", "alt", "content"];
+  const listeners = new Set();
+  const pluralRules = new Map();
+  let current = FALLBACK;
+
+  function isKnown(code) {
+    return LANGUAGES.some((language) => language.code === code);
+  }
+
+  function detect() {
+    let stored = null;
+    try { stored = localStorage.getItem(STORAGE_KEY); } catch (_) {}
+    if (isKnown(stored)) return stored;
+    const wanted = navigator.languages?.length ? navigator.languages : [navigator.language || ""];
+    for (const tag of wanted) {
+      const base = String(tag).toLowerCase().split("-")[0];
+      if (isKnown(base)) return base;
+    }
+    return FALLBACK;
+  }
+
+  /* Missing keys fall back to the reference language instead of disappearing. */
+  function entry(key) {
+    if (STRINGS[current] && key in STRINGS[current]) return { value: STRINGS[current][key], code: current };
+    if (key in STRINGS[FALLBACK]) return { value: STRINGS[FALLBACK][key], code: FALLBACK };
+    return null;
+  }
+
+  function pluralFormOf(code, forms, count) {
+    if (!pluralRules.has(code)) pluralRules.set(code, new Intl.PluralRules(code));
+    const category = pluralRules.get(code).select(Number.isFinite(count) ? count : 0);
+    return forms[category] ?? forms.other ?? forms.many ?? Object.values(forms)[0];
+  }
+
+  function t(key, params = {}) {
+    const found = entry(key);
+    if (!found) return key;
+    const template = typeof found.value === "object"
+      ? pluralFormOf(found.code, found.value, Number(params.count))
+      : found.value;
+    return String(template).replace(/\{(\w+)\}/g, (match, name) => (name in params ? String(params[name]) : match));
+  }
+
+  /* Only the counted noun, e.g. unit("units.cellsAcc", 2) -> "клетки". */
+  function unit(key, count) {
+    return t(key, { count });
+  }
+
+  function applyDom(root = document) {
+    root.querySelectorAll("[data-i18n]").forEach((el) => {
+      el.textContent = t(el.dataset.i18n);
+    });
+    ATTRIBUTES.forEach((attribute) => {
+      root.querySelectorAll(`[data-i18n-${attribute}]`).forEach((el) => {
+        el.setAttribute(attribute, t(el.getAttribute(`data-i18n-${attribute}`)));
+      });
+    });
+  }
+
+  function set(code) {
+    if (!isKnown(code)) return current;
+    current = code;
+    try { localStorage.setItem(STORAGE_KEY, code); } catch (_) {}
+    document.documentElement.lang = code;
+    applyDom();
+    listeners.forEach((listener) => listener(code));
+    return current;
+  }
+
+  function onChange(listener) {
+    listeners.add(listener);
+    return () => listeners.delete(listener);
+  }
+
+  function mountPicker(select) {
+    if (!select) return;
+    select.replaceChildren(...LANGUAGES.map((language) => {
+      const option = document.createElement("option");
+      option.value = language.code;
+      option.textContent = language.name;
+      return option;
+    }));
+    select.value = current;
+    select.addEventListener("change", () => set(select.value));
+    onChange((code) => { select.value = code; });
+  }
+
+  set(detect());
+
+  return {
+    languages: LANGUAGES,
+    t,
+    unit,
+    set,
+    applyDom,
+    onChange,
+    mountPicker,
+    get language() { return current; },
+  };
+})();

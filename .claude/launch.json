@@ -1,0 +1,14 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "baggage-dolly",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-c",
+        "import functools, http.server as s\nclass H(s.SimpleHTTPRequestHandler):\n    def end_headers(self):\n        self.send_header('Cache-Control', 'no-cache')\n        super().end_headers()\ns.test(HandlerClass=functools.partial(H, directory='dist'), port=8123)"
+      ],
+      "port": 8123
+    }
+  ]
+}
