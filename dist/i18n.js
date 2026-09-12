@@ -22,6 +22,8 @@ const I18N = (() => {
     en: {
       "meta.title": "Baggage Dolly",
       "meta.description": "Baggage Dolly — a puzzle about stacking luggage on an airport baggage cart.",
+      "studio.name": "FLL Games",
+      "loading.label": "Loading the shift",
       "brand.name": "Baggage Dolly",
       "brand.tagline": "Apron shift",
       "brand.restart": "Baggage Dolly — start over",
@@ -121,6 +123,8 @@ const I18N = (() => {
     ru: {
       "meta.title": "Baggage Dolly",
       "meta.description": "Baggage Dolly — головоломка об укладке багажа на аэродромную тележку.",
+      "studio.name": "FLL Games",
+      "loading.label": "Готовим смену",
       "brand.name": "Baggage Dolly",
       "brand.tagline": "Смена на перроне",
       "brand.restart": "Baggage Dolly — начать заново",
@@ -222,6 +226,8 @@ const I18N = (() => {
     de: {
       "meta.title": "Baggage Dolly",
       "meta.description": "Baggage Dolly — ein Rätsel über das Beladen eines Gepäckwagens am Flughafen.",
+      "studio.name": "FLL Games",
+      "loading.label": "Die Schicht wird vorbereitet",
       "brand.name": "Baggage Dolly",
       "brand.tagline": "Schicht am Vorfeld",
       "brand.restart": "Baggage Dolly — neu starten",
@@ -321,6 +327,8 @@ const I18N = (() => {
     es: {
       "meta.title": "Baggage Dolly",
       "meta.description": "Baggage Dolly: un rompecabezas sobre cargar equipaje en un carro de aeropuerto.",
+      "studio.name": "FLL Games",
+      "loading.label": "Preparando el turno",
       "brand.name": "Baggage Dolly",
       "brand.tagline": "Turno en la plataforma",
       "brand.restart": "Baggage Dolly: empezar de nuevo",
@@ -420,6 +428,8 @@ const I18N = (() => {
     fr: {
       "meta.title": "Baggage Dolly",
       "meta.description": "Baggage Dolly — un casse-tête sur le chargement des bagages sur un chariot d'aéroport.",
+      "studio.name": "FLL Games",
+      "loading.label": "Préparation du service",
       "brand.name": "Baggage Dolly",
       "brand.tagline": "Service sur le tarmac",
       "brand.restart": "Baggage Dolly — recommencer",

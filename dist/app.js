@@ -25,6 +25,12 @@ const undoButton = document.querySelector("#undoButton");
 const clearButton = document.querySelector("#clearButton");
 const hintButton = document.querySelector("#hintButton");
 const completeDialog = document.querySelector("#completeDialog");
+const splash = document.querySelector("#splash");
+const gameShell = document.querySelector(".game-shell");
+
+/* Long enough to read the studio logo even when everything is cached. */
+const SPLASH_MIN_MS = 1800;
+const SPLASH_FADE_MS = 500;
 
 const state = {
   banks: {},
@@ -74,16 +80,44 @@ function saveProgress() {
   }));
 }
 
-async function loadBanks() {
-  const entries = await Promise.all(
-    Object.entries(LEVEL_FILES).map(async ([name, path]) => {
-      const response = await fetch(path);
-      if (!response.ok) throw new Error(t("error.levelFetch", { path }));
-      const payload = await response.json();
-      return [name, payload.levels];
-    }),
-  );
-  state.banks = Object.fromEntries(entries);
+async function loadBank(name, path) {
+  const response = await fetch(path);
+  if (!response.ok) throw new Error(t("error.levelFetch", { path }));
+  const payload = await response.json();
+  state.banks[name] = payload.levels;
+}
+
+/* Load events rather than decode(), which a hidden tab never settles. */
+function imageReady(source) {
+  const image = typeof source === "string" ? Object.assign(new Image(), { src: source }) : source;
+  return new Promise((resolve) => {
+    if (image.complete) resolve();
+    else image.addEventListener("load", resolve, { once: true });
+    image.addEventListener("error", resolve, { once: true });
+  });
+}
+
+/* Every file the first flight needs moves the splash bar one step, so the
+   bar tells the truth about a slow connection instead of looping. */
+function trackLoading(tasks) {
+  const bar = splash.querySelector(".splash-progress");
+  let done = 0;
+  const show = () => {
+    const share = tasks.length ? done / tasks.length : 1;
+    bar.style.setProperty("--progress", share.toFixed(3));
+    bar.setAttribute("aria-valuenow", String(Math.round(share * 100)));
+  };
+  show();
+  return Promise.all(tasks.map((task) => task.finally(() => {
+    done += 1;
+    show();
+  })));
+}
+
+function liftSplash() {
+  gameShell.inert = false;
+  splash.classList.add("is-leaving");
+  window.setTimeout(() => splash.remove(), SPLASH_FADE_MS + 100);
 }
 
 function beginLevel(difficulty, index) {
@@ -362,14 +396,16 @@ function travelDistance() {
 
 async function moveScene(from, to, timing) {
   sceneMotion?.cancel();
+  /* Filling both ways parks the scene at its starting point through any
+     delay, so a delayed move never shows the scene where it will end up. */
   const motion = dollyScene.animate(
     [{ transform: `translateY(${from}px)` }, { transform: `translateY(${to}px)` }],
-    { ...timing, fill: "forwards" },
+    { ...timing, fill: "both" },
   );
   sceneMotion = motion;
   /* A hidden tab suspends animations, so the shift must never wait on one:
      if the move has not played by its own deadline, jump to the end. */
-  await Promise.race([motion.finished.catch(() => {}), wait(timing.duration + 600)]);
+  await Promise.race([motion.finished.catch(() => {}), wait((timing.delay || 0) + timing.duration + 600)]);
   if (sceneMotion === motion && motion.playState === "running") motion.finish();
 }
 
@@ -381,10 +417,10 @@ async function towAway() {
   await moveScene(0, travelDistance(), DEPARTURE);
 }
 
-async function rollIn() {
+async function rollIn(delay = 0) {
   state.travelling = true;
   renderStatus();
-  if (motionWanted()) await moveScene(-travelDistance(), 0, ARRIVAL);
+  if (motionWanted()) await moveScene(-travelDistance(), 0, { ...ARRIVAL, delay });
   sceneMotion?.cancel();
   sceneMotion = null;
   state.travelling = false;
@@ -652,15 +688,25 @@ async function start() {
   loadProgress();
   I18N.mountPicker(document.querySelector("#langSelect"));
   renderAdvice();
+  const logoShown = wait(SPLASH_MIN_MS);
   try {
-    await Promise.all([loadBanks(), LuggageRenderer.ready]);
+    await trackLoading([
+      ...Object.entries(LEVEL_FILES).map(([name, path]) => loadBank(name, path)),
+      ...LuggageRenderer.loads,
+      ...Array.from(document.querySelectorAll(".dolly-art, .baggage-tug"), imageReady),
+      imageReady("./assets/apron-ground.jpg"),
+    ]);
+    await logoShown;
     beginLevel(state.difficulty, state.levelIndex);
-    rollIn();
+    /* The first cart waits off-screen while the logo dissolves, then drives in. */
+    rollIn(SPLASH_FADE_MS * .6);
+    liftSplash();
     registerWebMcpTools();
     state.timerId = window.setInterval(() => {
       document.querySelector("#timer").textContent = formatTime(Math.floor((Date.now() - state.startedAt) / 1000));
     }, 1000);
   } catch (error) {
+    liftSplash();
     setAdvice("advice.loadError.title", "advice.loadError.text", "error");
     console.error(error);
   }

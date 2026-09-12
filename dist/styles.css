@@ -267,8 +267,8 @@ button, select { font: inherit; }
   user-select: none;
 }
 /* The cutout no longer carries the shadow its pavement had, so the dolly
-   casts one from the same light as the tug. The rim copy stays flat. */
-.dolly-art:not(.dolly-rim) {
+   casts one from the same light as the tug. */
+.dolly-art {
   filter: drop-shadow(.1875rem .375rem .3125rem rgba(8, 14, 18, .3));
 }
 .board {
@@ -283,14 +283,6 @@ button, select { font: inherit; }
   cursor: crosshair;
   user-select: none;
   overflow: hidden;
-}
-.dolly-rim {
-  z-index: 5;
-  /* Preserve the four real corner guards over the loaded cargo. */
-  clip-path: polygon(evenodd, 0 0, 100% 0, 100% 100%, 0 100%, 0 0,
-    20% 10.1%, 80% 10.1%, 80% 14.6%, 84.6% 14.6%,
-    84.6% 70.8%, 80% 70.8%, 80% 74.9%, 20% 74.9%,
-    20% 70.8%, 15.8% 70.8%, 15.8% 14.6%, 20% 14.6%, 20% 10.1%);
 }
 
 /* Extend the scene below the existing square, keeping the dolly and its
@@ -314,8 +306,8 @@ button, select { font: inherit; }
 .regions-layer,
 .draft-layer { position: absolute; inset: 0; }
 
-/* Layer order inside the scene: cargo (2) sits under the corner guards of the
-   rim (5), while tags (6) and the live outline (7) always stay readable. */
+/* Layer order inside the scene: the cargo (2) lies on top of the whole dolly,
+   corner guards included; tags (6) and the live outline (7) stay above it. */
 .regions-layer { z-index: 2; pointer-events: none; }
 .grid { z-index: auto; display: grid; grid-template-columns: repeat(7, 1fr); grid-template-rows: repeat(7, 1fr); pointer-events: none; }
 .draft-layer { z-index: 7; pointer-events: none; }
@@ -604,6 +596,51 @@ button, select { font: inherit; }
 
   .complete-dialog { width: min(22rem, calc(100% - 2rem)); padding: 1.6rem; }
   .complete-dialog h2 { font-size: 2rem; }
+}
+
+/* Studio splash. It is part of the markup, so it covers the screen from the
+   first paint until the first flight is ready and nobody sees half-loaded
+   artwork. Sized in viewport units so it does not depend on the stage's rem
+   scale while the page is still loading. */
+.splash {
+  --logo-h: min(58vh, 83vw);
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at 50% 45%, #fffdf5, var(--panel) 72%);
+  transition: opacity .5s ease, visibility .5s;
+}
+.splash.is-leaving { opacity: 0; visibility: hidden; }
+.splash-logo {
+  height: var(--logo-h);
+  width: auto;
+  user-select: none;
+  animation: splashLogo .8s cubic-bezier(.2, .7, .3, 1) both;
+}
+/* The artwork has wide transparent margins; tuck the bar up under the
+   lettering rather than leaving it adrift at the bottom of the canvas. */
+.splash-progress {
+  width: min(320px, 56vw);
+  height: 4px;
+  margin-top: calc(var(--logo-h) * -.07);
+  border-radius: 2px;
+  background: rgba(17, 24, 32, .12);
+  overflow: hidden;
+}
+.splash-progress i {
+  display: block;
+  height: 100%;
+  background: var(--ink);
+  transform: scaleX(var(--progress, 0));
+  transform-origin: left center;
+  transition: transform .35s ease;
+}
+@keyframes splashLogo {
+  from { opacity: 0; transform: scale(.94); }
 }
 
 @media (prefers-reduced-motion: reduce) {

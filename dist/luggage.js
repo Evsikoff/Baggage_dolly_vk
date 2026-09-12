@@ -25,11 +25,12 @@ const LuggageRenderer = (() => {
   const tinted = new Map();
   /* Load events, not decode(): a browser defers decoding while the tab is
      hidden, and the shift must still be ready when the player comes back. */
-  const ready = Promise.all(sources.map((image) => new Promise((resolve) => {
+  const loads = sources.map((image) => new Promise((resolve) => {
     if (image.complete) resolve();
     else image.addEventListener("load", resolve, { once: true });
     image.addEventListener("error", resolve, { once: true });
-  })));
+  }));
+  const ready = Promise.all(loads);
 
   let pool = sources;
   ready.then(() => {
@@ -131,5 +132,5 @@ const LuggageRenderer = (() => {
     }
   }
 
-  return { ready, paint };
+  return { ready, loads, paint };
 })();

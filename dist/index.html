@@ -9,7 +9,12 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <main class="game-shell">
+    <div id="splash" class="splash" role="status">
+      <img class="splash-logo" src="./assets/fll.png" width="747" height="1000" data-i18n-alt="studio.name" alt="FLL Games" fetchpriority="high" draggable="false" />
+      <div class="splash-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-i18n-aria-label="loading.label" aria-label="Loading the shift"><i></i></div>
+    </div>
+
+    <main class="game-shell" inert>
       <header class="topbar">
         <a class="brand" href="./" data-i18n-aria-label="brand.restart">
           <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
@@ -66,7 +71,6 @@
                   <div id="grid" class="grid" aria-live="polite"></div>
                   <div id="draftLayer" class="draft-layer" aria-hidden="true"></div>
                 </div>
-                <img class="dolly-art dolly-rim" src="./assets/dolly-overhead.png" width="1254" height="1254" alt="" draggable="false" />
                 <img class="baggage-tug" src="./assets/baggage-tug.png" width="1086" height="1448" data-i18n-alt="tug.alt" alt="Baggage tug hitched to the dolly" draggable="false" />
               </div>
               <div class="tug-clearance" aria-hidden="true"></div>
