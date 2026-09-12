@@ -118,11 +118,16 @@ function renderAll() {
 }
 
 function renderClues() {
-  for (const cell of grid.children) cell.replaceChildren();
+  for (const cell of grid.children) {
+    cell.replaceChildren();
+    cell.classList.toggle("occupied", state.regions.some((region) => contains(region, {
+      x: Number(cell.dataset.x), y: Number(cell.dataset.y),
+    })));
+  }
   state.level.clues.forEach((clue, index) => {
     const cell = grid.children[clue.y * 7 + clue.x];
     const tag = document.createElement("span");
-    tag.className = "clue";
+    tag.className = `clue${cell.classList.contains("occupied") ? " attached" : ""}`;
     tag.style.setProperty("--clue", PALETTE[index % PALETTE.length]);
     tag.style.setProperty("--tilt", `${index % 2 ? 2 : -2}deg`);
     tag.setAttribute(
@@ -139,14 +144,21 @@ function rectStyle(rect) {
 }
 
 function renderRegions() {
-  regionsLayer.innerHTML = "";
+  const existing = new Map(Array.from(regionsLayer.children, (el) => [el.dataset.id, el]));
   state.regions.forEach((region) => {
-    const el = document.createElement("div");
-    el.className = `region ${shapeOf(region)} case-style-${region.clueIndex % 4}${region.hinted ? " hinted" : ""}${region.wrong ? " wrong" : ""}`;
+    let el = existing.get(region.id);
+    if (!el) {
+      el = document.createElement("div");
+      el.dataset.id = region.id;
+      el.innerHTML = '<canvas class="case-art"></canvas>';
+      regionsLayer.append(el);
+    }
+    existing.delete(region.id);
+    el.className = `region ${shapeOf(region)}${region.hinted ? " hinted" : ""}${region.wrong ? " wrong" : ""}`;
     el.style.cssText = `${rectStyle(region)}--case:${PALETTE[region.clueIndex % PALETTE.length]};`;
-    el.innerHTML = '<i class="case-seam"></i><i class="case-ticket"></i>';
-    regionsLayer.append(el);
+    LuggageRenderer.paint(el.firstElementChild, region.clueIndex, PALETTE[region.clueIndex % PALETTE.length]);
   });
+  existing.forEach((el) => el.remove());
 }
 
 function renderDraft() {
@@ -539,7 +551,7 @@ async function start() {
   makeCells();
   loadProgress();
   try {
-    await loadBanks();
+    await Promise.all([loadBanks(), LuggageRenderer.ready]);
     beginLevel(state.difficulty, state.levelIndex);
     registerWebMcpTools();
     state.timerId = window.setInterval(() => {
@@ -552,3 +564,8 @@ async function start() {
 }
 
 start();
+
+// Repaint at the actual displayed size, including orientation changes.
+new ResizeObserver(() => {
+  if (state.level) renderRegions();
+}).observe(board);
