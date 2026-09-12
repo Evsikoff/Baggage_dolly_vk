@@ -17,7 +17,6 @@ const t = (key, params) => I18N.t(key, params);
 
 const board = document.querySelector("#board");
 const grid = document.querySelector("#grid");
-const apron = document.querySelector("#apron");
 const dollyStack = document.querySelector(".dolly-stack");
 const dollyScene = document.querySelector(".dolly-scene");
 const regionsLayer = document.querySelector("#regionsLayer");
@@ -56,12 +55,6 @@ function makeCells() {
       grid.append(cell);
     }
   }
-}
-
-/* Ten columns of square patches cover the apron the vehicles drive over;
-   fourteen rows reach past the bottom of the stack, which clips them. */
-function makeApron() {
-  apron.replaceChildren(...Array.from({ length: 140 }, () => document.createElement("i")));
 }
 
 function loadProgress() {
@@ -656,7 +649,6 @@ I18N.onChange(() => {
 
 async function start() {
   makeCells();
-  makeApron();
   loadProgress();
   I18N.mountPicker(document.querySelector("#langSelect"));
   renderAdvice();

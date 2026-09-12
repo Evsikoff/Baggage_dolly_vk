@@ -227,28 +227,17 @@ button, select { font: inherit; }
   overflow: hidden;
 }
 
-/* Paved apron that stays put while the vehicles move over it. Every tile
-   repeats the one patch of the artwork with neither vehicle nor joint in
-   it -- the pavement just below the left wheels -- at the same grain size
-   the scene shows it at, so the apron reads as one continuous surface.
-   The overlay adds the lighting the artwork itself is lit with. */
+/* Paved apron that stays put while the vehicles move over it. The dolly
+   artwork is a cutout, so this photo is the only ground in the scene; it is
+   drawn in the stack's own 25:34 proportions and fills it exactly. The
+   overlay adds the light the vehicles are lit with. */
 .apron {
   position: absolute;
   inset: 0;
   z-index: 0;
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  grid-auto-rows: auto;
-  background: #94908a;
+  background: #a8a49b url("./assets/apron-ground.jpg") center / cover no-repeat;
   pointer-events: none;
 }
-.apron i {
-  aspect-ratio: 1;
-  background: url("./assets/dolly-overhead.png") 1.6% 96.3% / 1045% 1045% no-repeat;
-  transform: scale(var(--ground-x, 1), var(--ground-y, 1));
-}
-.apron i:nth-child(3n) { --ground-x: -1; }
-.apron i:nth-child(7n) { --ground-y: -1; }
 .apron::after {
   content: "";
   position: absolute;
@@ -276,8 +265,11 @@ button, select { font: inherit; }
   display: block;
   pointer-events: none;
   user-select: none;
-  /* Blend only the empty asphalt below the hitch into its continuation. */
-  mask-image: linear-gradient(#000 96%, transparent 100%);
+}
+/* The cutout no longer carries the shadow its pavement had, so the dolly
+   casts one from the same light as the tug. The rim copy stays flat. */
+.dolly-art:not(.dolly-rim) {
+  filter: drop-shadow(.1875rem .375rem .3125rem rgba(8, 14, 18, .3));
 }
 .board {
   position: absolute;
