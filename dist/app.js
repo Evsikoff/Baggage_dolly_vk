@@ -17,6 +17,9 @@ const t = (key, params) => I18N.t(key, params);
 
 const board = document.querySelector("#board");
 const grid = document.querySelector("#grid");
+const apron = document.querySelector("#apron");
+const dollyStack = document.querySelector(".dolly-stack");
+const dollyScene = document.querySelector(".dolly-scene");
 const regionsLayer = document.querySelector("#regionsLayer");
 const draftLayer = document.querySelector("#draftLayer");
 const undoButton = document.querySelector("#undoButton");
@@ -39,6 +42,7 @@ const state = {
   timerId: null,
   advice: { title: "advice.start.title", text: "advice.start.text", type: "info", params: {}, terms: {} },
   completion: null,
+  travelling: false,
 };
 
 function makeCells() {
@@ -52,6 +56,12 @@ function makeCells() {
       grid.append(cell);
     }
   }
+}
+
+/* Ten columns of square patches cover the apron the vehicles drive over;
+   fourteen rows reach past the bottom of the stack, which clips them. */
+function makeApron() {
+  apron.replaceChildren(...Array.from({ length: 140 }, () => document.createElement("i")));
 }
 
 function loadProgress() {
@@ -184,9 +194,9 @@ function renderStatus() {
   document.querySelector("#levelLabel").textContent = `${state.levelIndex + 1}/${state.banks[state.difficulty].length}`;
   document.querySelector("#bagCount").textContent = `${state.regions.length}/${state.level.solution.length}`;
   document.querySelector("#errorCount").textContent = String(state.errors);
-  undoButton.disabled = state.history.length === 0;
-  clearButton.disabled = state.regions.length === 0;
-  hintButton.disabled = !state.level;
+  undoButton.disabled = state.travelling || state.history.length === 0;
+  clearButton.disabled = state.travelling || state.regions.length === 0;
+  hintButton.disabled = state.travelling || !state.level;
   document.querySelectorAll("[data-route]").forEach((el) => {
     const step = DIFFICULTIES.indexOf(el.dataset.route);
     const current = DIFFICULTIES.indexOf(state.difficulty);
@@ -335,6 +345,60 @@ function sameRect(a, b) {
   return a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height;
 }
 
+/* The loaded dolly is towed off the apron and the next one rolls into its
+   place. Both moves run downwards, the direction the tug faces, and the
+   stack clips them, so the pavement underneath never moves. */
+const DEPARTURE = { duration: 780, easing: "cubic-bezier(.5, 0, .82, .36)" };
+const ARRIVAL = { duration: 860, easing: "cubic-bezier(.18, .74, .3, 1)" };
+const SETTLE_MS = 420;
+
+let sceneMotion = null;
+
+function motionWanted() {
+  return !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function wait(ms) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+/* One stack height clears the frame in either direction, hitch included. */
+function travelDistance() {
+  return dollyStack.getBoundingClientRect().height + 12;
+}
+
+async function moveScene(from, to, timing) {
+  sceneMotion?.cancel();
+  const motion = dollyScene.animate(
+    [{ transform: `translateY(${from}px)` }, { transform: `translateY(${to}px)` }],
+    { ...timing, fill: "forwards" },
+  );
+  sceneMotion = motion;
+  /* A hidden tab suspends animations, so the shift must never wait on one:
+     if the move has not played by its own deadline, jump to the end. */
+  await Promise.race([motion.finished.catch(() => {}), wait(timing.duration + 600)]);
+  if (sceneMotion === motion && motion.playState === "running") motion.finish();
+}
+
+async function towAway() {
+  state.travelling = true;
+  renderStatus();
+  if (!motionWanted()) return;
+  await wait(SETTLE_MS);
+  await moveScene(0, travelDistance(), DEPARTURE);
+}
+
+async function rollIn() {
+  state.travelling = true;
+  renderStatus();
+  if (motionWanted()) await moveScene(-travelDistance(), 0, ARRIVAL);
+  sceneMotion?.cancel();
+  sceneMotion = null;
+  state.travelling = false;
+  state.startedAt = Date.now();
+  renderStatus();
+}
+
 function checkCompletion() {
   if (state.regions.length !== state.level.solution.length) return;
   const wrong = state.regions.filter((region) => !state.level.solution.some((solution) => sameRect(region, solution)));
@@ -352,7 +416,8 @@ function checkCompletion() {
   const seconds = Math.floor((Date.now() - state.startedAt) / 1000);
   state.completion = { count: state.regions.length, time: formatTime(seconds), errors: state.errors };
   renderCompletion();
-  completeDialog.showModal();
+  /* The report only makes sense while it is still the current one. */
+  towAway().then(() => { if (state.completion) completeDialog.showModal(); });
 }
 
 function placeRegionsFromTool(input) {
@@ -495,7 +560,7 @@ function formatTime(totalSeconds) {
 }
 
 board.addEventListener("pointerdown", (event) => {
-  if (!state.level || completeDialog.open) return;
+  if (!state.level || state.travelling || completeDialog.open) return;
   event.preventDefault();
   board.setPointerCapture(event.pointerId);
   const start = cellFromPointer(event);
@@ -565,11 +630,22 @@ hintButton.addEventListener("click", () => {
   checkCompletion();
 });
 
-document.querySelector("#nextButton").addEventListener("click", () => {
-  completeDialog.close();
+/* Called from the button and from the dialog's own close event, which also
+   covers Escape; the finished report is the token that makes it run once. */
+function callNextFlight() {
+  if (!state.completion) return;
+  state.completion = null;
   const [difficulty, index] = getNextLevel();
   beginLevel(difficulty, index);
+  rollIn();
+}
+
+document.querySelector("#nextButton").addEventListener("click", () => {
+  completeDialog.close();
+  callNextFlight();
 });
+
+completeDialog.addEventListener("close", callNextFlight);
 
 /* A new language redraws every string that JavaScript owns; the static
    markup is handled by the translator itself. */
@@ -580,12 +656,14 @@ I18N.onChange(() => {
 
 async function start() {
   makeCells();
+  makeApron();
   loadProgress();
   I18N.mountPicker(document.querySelector("#langSelect"));
   renderAdvice();
   try {
     await Promise.all([loadBanks(), LuggageRenderer.ready]);
     beginLevel(state.difficulty, state.levelIndex);
+    rollIn();
     registerWebMcpTools();
     state.timerId = window.setInterval(() => {
       document.querySelector("#timer").textContent = formatTime(Math.floor((Date.now() - state.startedAt) / 1000));
