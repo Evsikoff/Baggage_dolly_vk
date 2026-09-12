@@ -440,7 +440,7 @@ button { font: inherit; }
   .route-strip { padding: 0 10px; gap: 6px; margin-bottom: 10px; font-size: .75rem; letter-spacing: 0; text-transform: none; }
   .route-strip i { width: 8px; }
   .dolly-art { border-radius: 0; }
-  .clue { gap: 2px; }
+  .clue { flex-direction: column; gap: 1px; height: 27px; padding: 0 2px; border-width: 1px; font-size: .75rem; }
   .clue::before { display: none; }
   .draft-counter { min-width: 41px; height: 27px; padding: 0 4px; font-size: .8rem; }
   .mobile-help { display: block; margin: 4px 20px 0; text-align: center; color: #d0d7dd; font-size: .875rem; }

@@ -187,6 +187,7 @@ function renderStatus() {
   document.querySelector("#errorCount").textContent = String(state.errors);
   undoButton.disabled = state.history.length === 0;
   clearButton.disabled = state.regions.length === 0;
+  hintButton.disabled = !state.level;
   document.querySelectorAll("[data-route]").forEach((el) => {
     const step = DIFFICULTIES.indexOf(el.dataset.route);
     const current = DIFFICULTIES.indexOf(state.difficulty);
