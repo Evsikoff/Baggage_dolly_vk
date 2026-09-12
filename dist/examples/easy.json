@@ -1,0 +1,794 @@
+{
+  "version": 1,
+  "levels": [
+    {
+      "version": 1,
+      "width": 7,
+      "height": 7,
+      "clues": [
+        {
+          "x": 0,
+          "y": 0,
+          "area": 4,
+          "shape": "horizontal"
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "area": 8
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "area": 3,
+          "shape": "vertical"
+        },
+        {
+          "x": 0,
+          "y": 4,
+          "area": 8
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "area": 8,
+          "shape": "vertical"
+        },
+        {
+          "x": 6,
+          "y": 5,
+          "area": 3
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "area": 2,
+          "shape": "horizontal"
+        },
+        {
+          "x": 2,
+          "y": 5,
+          "area": 3,
+          "shape": "horizontal"
+        },
+        {
+          "x": 4,
+          "y": 5,
+          "area": 3
+        },
+        {
+          "x": 2,
+          "y": 6,
+          "area": 7
+        }
+      ],
+      "seed": 7111953271174839857,
+      "interestScore": 70.2,
+      "difficultyScore": 23.53,
+      "difficulty": "easy",
+      "evaluation": {
+        "accepted": true,
+        "reasons": [],
+        "features": {
+          "ambiguity": 0.383,
+          "nontriviality": 0.7,
+          "areaDiversity": 0.833,
+          "dimensionDiversity": 0.857,
+          "shapeDiversity": 0.667,
+          "clueMix": 0.806,
+          "regionCountBalance": 0.857
+        },
+        "solver": {
+          "searchNodes": 1,
+          "branchPoints": 0,
+          "forcedMoves": 10,
+          "contradictions": 0,
+          "maxDepth": 0,
+          "initialCandidateCounts": [
+            1,
+            3,
+            1,
+            4,
+            4,
+            2,
+            2,
+            2,
+            3,
+            1
+          ],
+          "averageInitialCandidates": 2.3,
+          "candidateEntropy": 10.17
+        }
+      },
+      "solution": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 4,
+          "height": 1
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "width": 2,
+          "height": 4
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "width": 1,
+          "height": 3
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "width": 2,
+          "height": 4
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "width": 2,
+          "height": 4
+        },
+        {
+          "x": 6,
+          "y": 3,
+          "width": 1,
+          "height": 3
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "width": 2,
+          "height": 1
+        },
+        {
+          "x": 0,
+          "y": 5,
+          "width": 3,
+          "height": 1
+        },
+        {
+          "x": 3,
+          "y": 5,
+          "width": 3,
+          "height": 1
+        },
+        {
+          "x": 0,
+          "y": 6,
+          "width": 7,
+          "height": 1
+        }
+      ]
+    },
+    {
+      "version": 1,
+      "width": 7,
+      "height": 7,
+      "clues": [
+        {
+          "x": 1,
+          "y": 0,
+          "area": 6,
+          "shape": "horizontal"
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "area": 8,
+          "shape": "horizontal"
+        },
+        {
+          "x": 0,
+          "y": 3,
+          "area": 6,
+          "shape": "horizontal"
+        },
+        {
+          "x": 4,
+          "y": 3,
+          "area": 4
+        },
+        {
+          "x": 5,
+          "y": 5,
+          "area": 4,
+          "shape": "vertical"
+        },
+        {
+          "x": 6,
+          "y": 3,
+          "area": 5,
+          "shape": "vertical"
+        },
+        {
+          "x": 1,
+          "y": 5,
+          "area": 6,
+          "shape": "horizontal"
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "area": 4
+        },
+        {
+          "x": 0,
+          "y": 6,
+          "area": 4
+        },
+        {
+          "x": 5,
+          "y": 6,
+          "area": 2
+        }
+      ],
+      "seed": 8650371544902556154,
+      "interestScore": 76.27,
+      "difficultyScore": 23.42,
+      "difficulty": "easy",
+      "evaluation": {
+        "accepted": true,
+        "reasons": [],
+        "features": {
+          "ambiguity": 0.417,
+          "nontriviality": 0.8,
+          "areaDiversity": 0.833,
+          "dimensionDiversity": 1.0,
+          "shapeDiversity": 1.0,
+          "clueMix": 0.645,
+          "regionCountBalance": 0.857
+        },
+        "solver": {
+          "searchNodes": 1,
+          "branchPoints": 0,
+          "forcedMoves": 10,
+          "contradictions": 0,
+          "maxDepth": 0,
+          "initialCandidateCounts": [
+            2,
+            2,
+            2,
+            5,
+            1,
+            3,
+            3,
+            4,
+            1,
+            2
+          ],
+          "averageInitialCandidates": 2.5,
+          "candidateEntropy": 11.492
+        }
+      },
+      "solution": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 3,
+          "height": 2
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "width": 4,
+          "height": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "width": 3,
+          "height": 2
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "width": 2,
+          "height": 2
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "width": 1,
+          "height": 4
+        },
+        {
+          "x": 6,
+          "y": 2,
+          "width": 1,
+          "height": 5
+        },
+        {
+          "x": 0,
+          "y": 4,
+          "width": 3,
+          "height": 2
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "width": 2,
+          "height": 2
+        },
+        {
+          "x": 0,
+          "y": 6,
+          "width": 4,
+          "height": 1
+        },
+        {
+          "x": 4,
+          "y": 6,
+          "width": 2,
+          "height": 1
+        }
+      ]
+    },
+    {
+      "version": 1,
+      "width": 7,
+      "height": 7,
+      "clues": [
+        {
+          "x": 0,
+          "y": 0,
+          "area": 8
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "area": 4
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "area": 6
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "area": 6,
+          "shape": "horizontal"
+        },
+        {
+          "x": 5,
+          "y": 3,
+          "area": 3,
+          "shape": "vertical"
+        },
+        {
+          "x": 6,
+          "y": 2,
+          "area": 3,
+          "shape": "vertical"
+        },
+        {
+          "x": 1,
+          "y": 5,
+          "area": 4,
+          "shape": "square"
+        },
+        {
+          "x": 2,
+          "y": 4,
+          "area": 6,
+          "shape": "horizontal"
+        },
+        {
+          "x": 6,
+          "y": 5,
+          "area": 4
+        },
+        {
+          "x": 2,
+          "y": 6,
+          "area": 5,
+          "shape": "horizontal"
+        }
+      ],
+      "seed": 3615121214239267779,
+      "interestScore": 76.27,
+      "difficultyScore": 27.31,
+      "difficulty": "easy",
+      "evaluation": {
+        "accepted": true,
+        "reasons": [],
+        "features": {
+          "ambiguity": 0.517,
+          "nontriviality": 0.9,
+          "areaDiversity": 0.833,
+          "dimensionDiversity": 0.714,
+          "shapeDiversity": 1.0,
+          "clueMix": 0.645,
+          "regionCountBalance": 0.857
+        },
+        "solver": {
+          "searchNodes": 1,
+          "branchPoints": 0,
+          "forcedMoves": 10,
+          "contradictions": 0,
+          "maxDepth": 0,
+          "initialCandidateCounts": [
+            1,
+            2,
+            4,
+            3,
+            3,
+            3,
+            2,
+            6,
+            4,
+            3
+          ],
+          "averageInitialCandidates": 3.1,
+          "candidateEntropy": 14.925
+        }
+      },
+      "solution": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 2,
+          "height": 4
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "width": 2,
+          "height": 2
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "width": 3,
+          "height": 2
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "width": 3,
+          "height": 2
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "width": 1,
+          "height": 3
+        },
+        {
+          "x": 6,
+          "y": 2,
+          "width": 1,
+          "height": 3
+        },
+        {
+          "x": 0,
+          "y": 4,
+          "width": 2,
+          "height": 2
+        },
+        {
+          "x": 2,
+          "y": 4,
+          "width": 3,
+          "height": 2
+        },
+        {
+          "x": 5,
+          "y": 5,
+          "width": 2,
+          "height": 2
+        },
+        {
+          "x": 0,
+          "y": 6,
+          "width": 5,
+          "height": 1
+        }
+      ]
+    },
+    {
+      "version": 1,
+      "width": 7,
+      "height": 7,
+      "clues": [
+        {
+          "x": 1,
+          "y": 1,
+          "area": 6
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "area": 6,
+          "shape": "vertical"
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "area": 4
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "area": 4
+        },
+        {
+          "x": 2,
+          "y": 4,
+          "area": 4,
+          "shape": "vertical"
+        },
+        {
+          "x": 6,
+          "y": 4,
+          "area": 8,
+          "shape": "vertical"
+        },
+        {
+          "x": 3,
+          "y": 3,
+          "area": 6,
+          "shape": "vertical"
+        },
+        {
+          "x": 0,
+          "y": 4,
+          "area": 4,
+          "shape": "square"
+        },
+        {
+          "x": 1,
+          "y": 6,
+          "area": 7
+        }
+      ],
+      "seed": 7341855628840418209,
+      "interestScore": 76.31,
+      "difficultyScore": 26.32,
+      "difficulty": "easy",
+      "evaluation": {
+        "accepted": true,
+        "reasons": [],
+        "features": {
+          "ambiguity": 0.463,
+          "nontriviality": 0.889,
+          "areaDiversity": 0.667,
+          "dimensionDiversity": 0.857,
+          "shapeDiversity": 1.0,
+          "clueMix": 0.717,
+          "regionCountBalance": 1.0
+        },
+        "solver": {
+          "searchNodes": 1,
+          "branchPoints": 0,
+          "forcedMoves": 9,
+          "contradictions": 0,
+          "maxDepth": 0,
+          "initialCandidateCounts": [
+            4,
+            2,
+            5,
+            3,
+            3,
+            3,
+            2,
+            2,
+            1
+          ],
+          "averageInitialCandidates": 2.778,
+          "candidateEntropy": 12.077
+        }
+      },
+      "solution": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 3,
+          "height": 2
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "width": 2,
+          "height": 3
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "width": 2,
+          "height": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "width": 2,
+          "height": 2
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "width": 1,
+          "height": 4
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "width": 2,
+          "height": 4
+        },
+        {
+          "x": 3,
+          "y": 3,
+          "width": 2,
+          "height": 3
+        },
+        {
+          "x": 0,
+          "y": 4,
+          "width": 2,
+          "height": 2
+        },
+        {
+          "x": 0,
+          "y": 6,
+          "width": 7,
+          "height": 1
+        }
+      ]
+    },
+    {
+      "version": 1,
+      "width": 7,
+      "height": 7,
+      "clues": [
+        {
+          "x": 1,
+          "y": 1,
+          "area": 8
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "area": 6,
+          "shape": "horizontal"
+        },
+        {
+          "x": 2,
+          "y": 3,
+          "area": 8,
+          "shape": "horizontal"
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "area": 8,
+          "shape": "vertical"
+        },
+        {
+          "x": 6,
+          "y": 4,
+          "area": 4,
+          "shape": "vertical"
+        },
+        {
+          "x": 0,
+          "y": 5,
+          "area": 6
+        },
+        {
+          "x": 3,
+          "y": 6,
+          "area": 3,
+          "shape": "vertical"
+        },
+        {
+          "x": 2,
+          "y": 6,
+          "area": 3,
+          "shape": "horizontal"
+        },
+        {
+          "x": 5,
+          "y": 6,
+          "area": 3
+        }
+      ],
+      "seed": 1036073736616484249,
+      "interestScore": 70.45,
+      "difficultyScore": 26.13,
+      "difficulty": "easy",
+      "evaluation": {
+        "accepted": true,
+        "reasons": [],
+        "features": {
+          "ambiguity": 0.556,
+          "nontriviality": 0.778,
+          "areaDiversity": 0.667,
+          "dimensionDiversity": 0.857,
+          "shapeDiversity": 0.667,
+          "clueMix": 0.538,
+          "regionCountBalance": 1.0
+        },
+        "solver": {
+          "searchNodes": 1,
+          "branchPoints": 0,
+          "forcedMoves": 9,
+          "contradictions": 0,
+          "maxDepth": 0,
+          "initialCandidateCounts": [
+            6,
+            4,
+            4,
+            3,
+            3,
+            6,
+            1,
+            1,
+            2
+          ],
+          "averageInitialCandidates": 3.333,
+          "candidateEntropy": 13.34
+        }
+      },
+      "solution": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 4,
+          "height": 2
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "width": 3,
+          "height": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "width": 4,
+          "height": 2
+        },
+        {
+          "x": 4,
+          "y": 2,
+          "width": 2,
+          "height": 4
+        },
+        {
+          "x": 6,
+          "y": 2,
+          "width": 1,
+          "height": 4
+        },
+        {
+          "x": 0,
+          "y": 4,
+          "width": 3,
+          "height": 2
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "width": 1,
+          "height": 3
+        },
+        {
+          "x": 0,
+          "y": 6,
+          "width": 3,
+          "height": 1
+        },
+        {
+          "x": 4,
+          "y": 6,
+          "width": 3,
+          "height": 1
+        }
+      ]
+    }
+  ]
+}

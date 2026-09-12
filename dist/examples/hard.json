@@ -1,0 +1,807 @@
+{
+  "version": 1,
+  "levels": [
+    {
+      "version": 1,
+      "width": 7,
+      "height": 7,
+      "clues": [
+        {
+          "x": 2,
+          "y": 0,
+          "area": 6
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "area": 6
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "area": 6
+        },
+        {
+          "x": 0,
+          "y": 3,
+          "area": 8
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "area": 4
+        },
+        {
+          "x": 4,
+          "y": 3,
+          "area": 4
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "area": 4
+        },
+        {
+          "x": 6,
+          "y": 4,
+          "area": 4
+        },
+        {
+          "x": 2,
+          "y": 6,
+          "area": 3
+        },
+        {
+          "x": 3,
+          "y": 6,
+          "area": 2,
+          "shape": "horizontal"
+        },
+        {
+          "x": 6,
+          "y": 6,
+          "area": 2
+        }
+      ],
+      "seed": 1756677090171988537,
+      "interestScore": 82.48,
+      "difficultyScore": 57.32,
+      "difficulty": "hard",
+      "evaluation": {
+        "accepted": true,
+        "reasons": [],
+        "features": {
+          "ambiguity": 0.742,
+          "nontriviality": 0.909,
+          "areaDiversity": 0.833,
+          "dimensionDiversity": 1.0,
+          "shapeDiversity": 1.0,
+          "clueMix": 0.534,
+          "regionCountBalance": 0.714
+        },
+        "solver": {
+          "searchNodes": 11,
+          "branchPoints": 5,
+          "forcedMoves": 15,
+          "contradictions": 5,
+          "maxDepth": 5,
+          "initialCandidateCounts": [
+            4,
+            5,
+            4,
+            4,
+            8,
+            7,
+            8,
+            4,
+            2,
+            1,
+            2
+          ],
+          "averageInitialCandidates": 4.455,
+          "candidateEntropy": 21.129
+        }
+      },
+      "solution": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 3,
+          "height": 2
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "width": 2,
+          "height": 3
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "width": 2,
+          "height": 3
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "width": 2,
+          "height": 4
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "width": 1,
+          "height": 4
+        },
+        {
+          "x": 3,
+          "y": 3,
+          "width": 4,
+          "height": 1
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "width": 2,
+          "height": 2
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "width": 2,
+          "height": 2
+        },
+        {
+          "x": 0,
+          "y": 6,
+          "width": 3,
+          "height": 1
+        },
+        {
+          "x": 3,
+          "y": 6,
+          "width": 2,
+          "height": 1
+        },
+        {
+          "x": 5,
+          "y": 6,
+          "width": 2,
+          "height": 1
+        }
+      ]
+    },
+    {
+      "version": 1,
+      "width": 7,
+      "height": 7,
+      "clues": [
+        {
+          "x": 2,
+          "y": 0,
+          "area": 6
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "area": 8
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "area": 4
+        },
+        {
+          "x": 6,
+          "y": 1,
+          "area": 7
+        },
+        {
+          "x": 0,
+          "y": 4,
+          "area": 4
+        },
+        {
+          "x": 1,
+          "y": 4,
+          "area": 6,
+          "shape": "vertical"
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "area": 6
+        },
+        {
+          "x": 2,
+          "y": 5,
+          "area": 2
+        },
+        {
+          "x": 5,
+          "y": 6,
+          "area": 6
+        }
+      ],
+      "seed": 2471053961385101195,
+      "interestScore": 83.61,
+      "difficultyScore": 54.49,
+      "difficulty": "hard",
+      "evaluation": {
+        "accepted": true,
+        "reasons": [],
+        "features": {
+          "ambiguity": 0.741,
+          "nontriviality": 1.0,
+          "areaDiversity": 0.833,
+          "dimensionDiversity": 1.0,
+          "shapeDiversity": 0.667,
+          "clueMix": 0.566,
+          "regionCountBalance": 1.0
+        },
+        "solver": {
+          "searchNodes": 7,
+          "branchPoints": 3,
+          "forcedMoves": 8,
+          "contradictions": 3,
+          "maxDepth": 3,
+          "initialCandidateCounts": [
+            6,
+            5,
+            6,
+            2,
+            3,
+            3,
+            5,
+            4,
+            6
+          ],
+          "averageInitialCandidates": 4.444,
+          "candidateEntropy": 18.569
+        }
+      },
+      "solution": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 3,
+          "height": 2
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "width": 2,
+          "height": 4
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "width": 1,
+          "height": 4
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "width": 1,
+          "height": 7
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "width": 1,
+          "height": 4
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "width": 2,
+          "height": 3
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "width": 3,
+          "height": 2
+        },
+        {
+          "x": 1,
+          "y": 5,
+          "width": 2,
+          "height": 1
+        },
+        {
+          "x": 0,
+          "y": 6,
+          "width": 6,
+          "height": 1
+        }
+      ]
+    },
+    {
+      "version": 1,
+      "width": 7,
+      "height": 7,
+      "clues": [
+        {
+          "x": 2,
+          "y": 0,
+          "area": 8
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "area": 4
+        },
+        {
+          "x": 6,
+          "y": 1,
+          "area": 6
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "area": 6,
+          "shape": "horizontal"
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "area": 6
+        },
+        {
+          "x": 5,
+          "y": 3,
+          "area": 2
+        },
+        {
+          "x": 0,
+          "y": 5,
+          "area": 4
+        },
+        {
+          "x": 2,
+          "y": 5,
+          "area": 2
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "area": 2
+        },
+        {
+          "x": 4,
+          "y": 6,
+          "area": 4,
+          "shape": "square"
+        },
+        {
+          "x": 1,
+          "y": 6,
+          "area": 3
+        },
+        {
+          "x": 6,
+          "y": 6,
+          "area": 2
+        }
+      ],
+      "seed": 393655129160476693,
+      "interestScore": 80.05,
+      "difficultyScore": 50.33,
+      "difficulty": "hard",
+      "evaluation": {
+        "accepted": true,
+        "reasons": [],
+        "features": {
+          "ambiguity": 0.597,
+          "nontriviality": 0.917,
+          "areaDiversity": 0.833,
+          "dimensionDiversity": 1.0,
+          "shapeDiversity": 1.0,
+          "clueMix": 0.656,
+          "regionCountBalance": 0.571
+        },
+        "solver": {
+          "searchNodes": 9,
+          "branchPoints": 4,
+          "forcedMoves": 14,
+          "contradictions": 4,
+          "maxDepth": 4,
+          "initialCandidateCounts": [
+            1,
+            4,
+            4,
+            8,
+            6,
+            3,
+            3,
+            4,
+            3,
+            2,
+            3,
+            2
+          ],
+          "averageInitialCandidates": 3.583,
+          "candidateEntropy": 19.925
+        }
+      },
+      "solution": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 4,
+          "height": 2
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "width": 2,
+          "height": 2
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "width": 1,
+          "height": 6
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "width": 3,
+          "height": 2
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "width": 2,
+          "height": 3
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "width": 1,
+          "height": 2
+        },
+        {
+          "x": 0,
+          "y": 4,
+          "width": 2,
+          "height": 2
+        },
+        {
+          "x": 2,
+          "y": 4,
+          "width": 1,
+          "height": 2
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "width": 1,
+          "height": 2
+        },
+        {
+          "x": 3,
+          "y": 5,
+          "width": 2,
+          "height": 2
+        },
+        {
+          "x": 0,
+          "y": 6,
+          "width": 3,
+          "height": 1
+        },
+        {
+          "x": 5,
+          "y": 6,
+          "width": 2,
+          "height": 1
+        }
+      ]
+    },
+    {
+      "version": 1,
+      "width": 7,
+      "height": 7,
+      "clues": [
+        {
+          "x": 0,
+          "y": 2,
+          "area": 8
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "area": 6
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "area": 6
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "area": 4
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "area": 8
+        },
+        {
+          "x": 1,
+          "y": 5,
+          "area": 6
+        },
+        {
+          "x": 6,
+          "y": 4,
+          "area": 3
+        },
+        {
+          "x": 3,
+          "y": 6,
+          "area": 6
+        },
+        {
+          "x": 5,
+          "y": 5,
+          "area": 2
+        }
+      ],
+      "seed": 1672820477441107236,
+      "interestScore": 84.42,
+      "difficultyScore": 50.69,
+      "difficulty": "hard",
+      "evaluation": {
+        "accepted": true,
+        "reasons": [],
+        "features": {
+          "ambiguity": 0.889,
+          "nontriviality": 1.0,
+          "areaDiversity": 0.833,
+          "dimensionDiversity": 1.0,
+          "shapeDiversity": 0.667,
+          "clueMix": 0.387,
+          "regionCountBalance": 1.0
+        },
+        "solver": {
+          "searchNodes": 3,
+          "branchPoints": 1,
+          "forcedMoves": 10,
+          "contradictions": 1,
+          "maxDepth": 1,
+          "initialCandidateCounts": [
+            3,
+            12,
+            7,
+            3,
+            3,
+            9,
+            3,
+            4,
+            4
+          ],
+          "averageInitialCandidates": 5.333,
+          "candidateEntropy": 19.902
+        }
+      },
+      "solution": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 2,
+          "height": 4
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "width": 2,
+          "height": 3
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "width": 2,
+          "height": 3
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "width": 1,
+          "height": 4
+        },
+        {
+          "x": 2,
+          "y": 3,
+          "width": 4,
+          "height": 2
+        },
+        {
+          "x": 0,
+          "y": 4,
+          "width": 2,
+          "height": 3
+        },
+        {
+          "x": 6,
+          "y": 4,
+          "width": 1,
+          "height": 3
+        },
+        {
+          "x": 2,
+          "y": 5,
+          "width": 3,
+          "height": 2
+        },
+        {
+          "x": 5,
+          "y": 5,
+          "width": 1,
+          "height": 2
+        }
+      ]
+    },
+    {
+      "version": 1,
+      "width": 7,
+      "height": 7,
+      "clues": [
+        {
+          "x": 1,
+          "y": 1,
+          "area": 8
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "area": 8
+        },
+        {
+          "x": 6,
+          "y": 4,
+          "area": 6
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "area": 6
+        },
+        {
+          "x": 5,
+          "y": 3,
+          "area": 4
+        },
+        {
+          "x": 2,
+          "y": 5,
+          "area": 6
+        },
+        {
+          "x": 3,
+          "y": 6,
+          "area": 3
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "area": 3
+        },
+        {
+          "x": 2,
+          "y": 6,
+          "area": 3,
+          "shape": "horizontal"
+        },
+        {
+          "x": 5,
+          "y": 6,
+          "area": 2
+        }
+      ],
+      "seed": 139873807076940240,
+      "interestScore": 77.1,
+      "difficultyScore": 47.0,
+      "difficulty": "hard",
+      "evaluation": {
+        "accepted": true,
+        "reasons": [],
+        "features": {
+          "ambiguity": 0.683,
+          "nontriviality": 0.8,
+          "areaDiversity": 0.833,
+          "dimensionDiversity": 1.0,
+          "shapeDiversity": 0.667,
+          "clueMix": 0.548,
+          "regionCountBalance": 0.857
+        },
+        "solver": {
+          "searchNodes": 5,
+          "branchPoints": 2,
+          "forcedMoves": 8,
+          "contradictions": 2,
+          "maxDepth": 2,
+          "initialCandidateCounts": [
+            3,
+            4,
+            2,
+            9,
+            7,
+            6,
+            1,
+            5,
+            1,
+            3
+          ],
+          "averageInitialCandidates": 4.1,
+          "candidateEntropy": 17.054
+        }
+      },
+      "solution": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 2,
+          "height": 4
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "width": 4,
+          "height": 2
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "width": 1,
+          "height": 6
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "width": 3,
+          "height": 2
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "width": 1,
+          "height": 4
+        },
+        {
+          "x": 0,
+          "y": 4,
+          "width": 3,
+          "height": 2
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "width": 1,
+          "height": 3
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "width": 1,
+          "height": 3
+        },
+        {
+          "x": 0,
+          "y": 6,
+          "width": 3,
+          "height": 1
+        },
+        {
+          "x": 5,
+          "y": 6,
+          "width": 2,
+          "height": 1
+        }
+      ]
+    }
+  ]
+}
