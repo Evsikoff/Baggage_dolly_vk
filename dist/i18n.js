@@ -1,5 +1,4 @@
-/* Every user-facing string of Baggage Dolly lives in this file.
-   To add a language: append it to LANGUAGES and copy one STRINGS block.
+/* Baggage Dolly always runs in Russian on VK.
    A value is either a string or an object of plural forms keyed by the
    categories of Intl.PluralRules ("one", "few", "many", "other").
    Placeholders are written as {name} and filled from the params object.
@@ -7,16 +6,9 @@
    after a bare number, units.cellsAcc is the accusative used after a verb
    ("add 2 cells"). In the other languages both forms are identical. */
 const I18N = (() => {
-  const STORAGE_KEY = "baggage-dolly-language";
-  const FALLBACK = "en";
+  const FALLBACK = "ru";
 
-  const LANGUAGES = [
-    { code: "en", name: "English" },
-    { code: "ru", name: "Русский" },
-    { code: "de", name: "Deutsch" },
-    { code: "es", name: "Español" },
-    { code: "fr", name: "Français" },
-  ];
+  const LANGUAGES = [{ code: "ru", name: "Русский" }];
 
   const STRINGS = {
     en: {
@@ -150,8 +142,8 @@ const I18N = (() => {
       "controls.undoHint": "Отменить последний ход",
       "controls.clear": "Очистить",
       "controls.clearHint": "Убрать все чемоданы",
-      "controls.hint": "Подсказка",
-      "controls.hintHint": "Показать один подходящий чемодан",
+      "controls.hint": "Подсказка 🎬",
+      "controls.hintHint": "Посмотреть видео и получить подсказку",
       "legend.title": "Что на бирке",
       "legend.note": "Если значка нет, важен только размер.",
       "shape.square": "квадрат",
@@ -528,25 +520,8 @@ const I18N = (() => {
   };
 
   const ATTRIBUTES = ["aria-label", "title", "alt", "content"];
-  const listeners = new Set();
   const pluralRules = new Map();
-  let current = FALLBACK;
-
-  function isKnown(code) {
-    return LANGUAGES.some((language) => language.code === code);
-  }
-
-  function detect() {
-    let stored = null;
-    try { stored = localStorage.getItem(STORAGE_KEY); } catch (_) {}
-    if (isKnown(stored)) return stored;
-    const wanted = navigator.languages?.length ? navigator.languages : [navigator.language || ""];
-    for (const tag of wanted) {
-      const base = String(tag).toLowerCase().split("-")[0];
-      if (isKnown(base)) return base;
-    }
-    return FALLBACK;
-  }
+  const current = "ru";
 
   /* Missing keys fall back to the reference language instead of disappearing. */
   function entry(key) {
@@ -586,44 +561,14 @@ const I18N = (() => {
     });
   }
 
-  function set(code) {
-    if (!isKnown(code)) return current;
-    current = code;
-    try { localStorage.setItem(STORAGE_KEY, code); } catch (_) {}
-    document.documentElement.lang = code;
-    applyDom();
-    listeners.forEach((listener) => listener(code));
-    return current;
-  }
-
-  function onChange(listener) {
-    listeners.add(listener);
-    return () => listeners.delete(listener);
-  }
-
-  function mountPicker(select) {
-    if (!select) return;
-    select.replaceChildren(...LANGUAGES.map((language) => {
-      const option = document.createElement("option");
-      option.value = language.code;
-      option.textContent = language.name;
-      return option;
-    }));
-    select.value = current;
-    select.addEventListener("change", () => set(select.value));
-    onChange((code) => { select.value = code; });
-  }
-
-  set(detect());
+  document.documentElement.lang = "ru";
+  applyDom();
 
   return {
     languages: LANGUAGES,
     t,
     unit,
-    set,
     applyDom,
-    onChange,
-    mountPicker,
     get language() { return current; },
   };
 })();

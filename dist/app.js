@@ -12,6 +12,16 @@ const PALETTE = [
   "#2f72b5", "#c78b92", "#397b86", "#8c705e", "#4f5875", "#b84c49",
   "#454c53", "#4387b8", "#7d8993", "#b0784c", "#6c4a6e", "#4c7d70",
 ];
+const DEFAULT_PROGRESS = {
+  version: 1,
+  difficulty: "tutorial",
+  levelIndex: 0,
+  fastEasy: 0,
+  completedLevels: 0,
+  totalHints: 0,
+  totalErrors: 0,
+  isFirstRun: true,
+};
 
 const t = (key, params) => I18N.t(key, params);
 
@@ -25,6 +35,8 @@ const undoButton = document.querySelector("#undoButton");
 const clearButton = document.querySelector("#clearButton");
 const hintButton = document.querySelector("#hintButton");
 const completeDialog = document.querySelector("#completeDialog");
+const nextButton = document.querySelector("#nextButton");
+const toast = document.querySelector("#toast");
 const splash = document.querySelector("#splash");
 const gameShell = document.querySelector(".game-shell");
 
@@ -43,11 +55,17 @@ const state = {
   invalidDraft: null,
   errors: 0,
   hints: 0,
+  fastEasy: 0,
+  completedLevels: 0,
+  totalHints: 0,
+  totalErrors: 0,
+  isFirstRun: true,
   startedAt: Date.now(),
   timerId: null,
   advice: { title: "advice.start.title", text: "advice.start.text", type: "info", params: {}, terms: {} },
   completion: null,
   travelling: false,
+  advertising: false,
 };
 
 function makeCells() {
@@ -63,21 +81,63 @@ function makeCells() {
   }
 }
 
-function loadProgress() {
+function isValidProgress(saved) {
+  return Boolean(saved)
+    && typeof saved === "object"
+    && DIFFICULTIES.includes(saved.difficulty)
+    && Number.isInteger(Number(saved.levelIndex))
+    && Number(saved.levelIndex) >= 0;
+}
+
+function migrateLegacyProgress() {
   try {
-    const saved = JSON.parse(localStorage.getItem("baggage-dolly-progress"));
-    if (saved && DIFFICULTIES.includes(saved.difficulty)) {
-      state.difficulty = saved.difficulty;
-      state.levelIndex = Math.max(0, Math.min(4, Number(saved.levelIndex) || 0));
-    }
+    if (localStorage.getItem(VKService.STORAGE_KEY)) return;
+    const legacy = JSON.parse(localStorage.getItem("baggage-dolly-progress"));
+    if (!isValidProgress(legacy)) return;
+    const migrated = {
+      ...DEFAULT_PROGRESS,
+      difficulty: legacy.difficulty,
+      levelIndex: Number(legacy.levelIndex),
+      fastEasy: Number(localStorage.getItem("baggage-dolly-fast-easy") || 0),
+      isFirstRun: false,
+    };
+    localStorage.setItem(VKService.STORAGE_KEY, JSON.stringify(migrated));
   } catch (_) {}
 }
 
-function saveProgress() {
-  localStorage.setItem("baggage-dolly-progress", JSON.stringify({
+function applyProgress(saved, isFirstRun = false) {
+  state.difficulty = saved.difficulty;
+  state.levelIndex = Math.max(0, Number(saved.levelIndex) || 0);
+  state.fastEasy = Math.max(0, Number(saved.fastEasy) || 0);
+  state.completedLevels = Math.max(0, Number(saved.completedLevels) || 0);
+  state.totalHints = Math.max(0, Number(saved.totalHints) || 0);
+  state.totalErrors = Math.max(0, Number(saved.totalErrors) || 0);
+  state.isFirstRun = isFirstRun;
+}
+
+function currentProgress() {
+  return {
+    version: 1,
     difficulty: state.difficulty,
     levelIndex: state.levelIndex,
-  }));
+    fastEasy: state.fastEasy,
+    completedLevels: state.completedLevels,
+    totalHints: state.totalHints,
+    totalErrors: state.totalErrors,
+    isFirstRun: state.isFirstRun,
+  };
+}
+
+function saveProgress() {
+  void VKService.saveGameProgress(currentProgress());
+}
+
+let toastTimer = null;
+function showToast(message) {
+  window.clearTimeout(toastTimer);
+  toast.textContent = message;
+  toast.classList.add("visible");
+  toastTimer = window.setTimeout(() => toast.classList.remove("visible"), 3600);
 }
 
 async function loadBank(name, path) {
@@ -132,6 +192,7 @@ function beginLevel(difficulty, index) {
   state.hints = 0;
   state.startedAt = Date.now();
   state.completion = null;
+  state.isFirstRun = false;
   saveProgress();
   renderAll();
   if (difficulty === "tutorial") {
@@ -223,7 +284,7 @@ function renderStatus() {
   document.querySelector("#errorCount").textContent = String(state.errors);
   undoButton.disabled = state.travelling || state.history.length === 0;
   clearButton.disabled = state.travelling || state.regions.length === 0;
-  hintButton.disabled = state.travelling || !state.level;
+  hintButton.disabled = state.travelling || state.advertising || !state.level || Boolean(state.completion);
   document.querySelectorAll("[data-route]").forEach((el) => {
     const step = DIFFICULTIES.indexOf(el.dataset.route);
     const current = DIFFICULTIES.indexOf(state.difficulty);
@@ -429,6 +490,7 @@ async function rollIn(delay = 0) {
 }
 
 function checkCompletion() {
+  if (state.completion) return;
   if (state.regions.length !== state.level.solution.length) return;
   const wrong = state.regions.filter((region) => !state.level.solution.some((solution) => sameRect(region, solution)));
   if (wrong.length) {
@@ -444,6 +506,9 @@ function checkCompletion() {
   }
   const seconds = Math.floor((Date.now() - state.startedAt) / 1000);
   state.completion = { count: state.regions.length, time: formatTime(seconds), errors: state.errors };
+  state.completedLevels += 1;
+  state.totalErrors += state.errors;
+  saveProgress();
   renderCompletion();
   /* The report only makes sense while it is still the current one. */
   towAway().then(() => { if (state.completion) completeDialog.showModal(); });
@@ -553,7 +618,7 @@ function registerWebMcpTools() {
 function getNextLevel() {
   const elapsed = (Date.now() - state.startedAt) / 1000;
   const fast = state.errors === 0 && state.hints === 0 && elapsed <= (state.difficulty === "easy" ? 90 : 150);
-  let fastEasy = Number(localStorage.getItem("baggage-dolly-fast-easy") || 0);
+  let fastEasy = state.fastEasy;
 
   if (state.difficulty === "tutorial") {
     if (state.levelIndex < state.banks.tutorial.length - 1) return ["tutorial", state.levelIndex + 1];
@@ -562,7 +627,7 @@ function getNextLevel() {
 
   if (state.difficulty === "easy") {
     fastEasy = fast ? fastEasy + 1 : 0;
-    localStorage.setItem("baggage-dolly-fast-easy", String(fastEasy));
+    state.fastEasy = fastEasy;
     if (fastEasy >= 2) return ["hard", 0];
     if (state.levelIndex < state.banks.easy.length - 1) return ["easy", state.levelIndex + 1];
     return ["medium", 0];
@@ -638,64 +703,92 @@ clearButton.addEventListener("click", () => {
   renderAll();
 });
 
-hintButton.addEventListener("click", () => {
-  const target = state.level.solution.find((solution) => !state.regions.some((region) => sameRect(region, solution)));
-  if (!target) {
-    setAdvice("advice.hintUseless.title", "advice.hintUseless.text", "success");
-    return;
-  }
+function applyHint(target) {
   snapshot();
   state.hints += 1;
+  state.totalHints += 1;
   state.regions = state.regions.filter((region) => !overlaps(region, target));
   const clue = cluesIn(target)[0];
   state.regions.push({ ...target, clueIndex: clue.index, id: crypto.randomUUID(), hinted: true });
   const area = target.width * target.height;
   setAdvice("advice.hint.title", "advice.hint.text", "success", { area }, { cells: ["units.cellsAcc", area] });
+  saveProgress();
   renderAll();
   window.setTimeout(() => {
     state.regions.forEach((region) => { delete region.hinted; });
     renderRegions();
   }, 2100);
   checkCompletion();
+}
+
+hintButton.addEventListener("click", async () => {
+  const target = state.level.solution.find((solution) => !state.regions.some((region) => sameRect(region, solution)));
+  if (!target) {
+    setAdvice("advice.hintUseless.title", "advice.hintUseless.text", "success");
+    return;
+  }
+  if (state.advertising) return;
+  state.advertising = true;
+  renderStatus();
+  try {
+    const data = await VKService.showRewardedAd();
+    if (data?.result) {
+      applyHint(target);
+    } else {
+      showToast("Посмотрите рекламу до конца, чтобы получить подсказку");
+    }
+  } catch (error) {
+    console.error("Ошибка при показе видеорекламы:", error);
+    showToast("Реклама временно недоступна, попробуйте позже");
+  } finally {
+    state.advertising = false;
+    renderStatus();
+  }
 });
 
 /* Called from the button and from the dialog's own close event, which also
    covers Escape; the finished report is the token that makes it run once. */
-function callNextFlight() {
-  if (!state.completion) return;
-  state.completion = null;
+let nextFlightPending = false;
+async function callNextFlight() {
+  if (!state.completion || nextFlightPending) return;
+  nextFlightPending = true;
+  nextButton.disabled = true;
   const [difficulty, index] = getNextLevel();
-  beginLevel(difficulty, index);
-  rollIn();
+  if (completeDialog.open) completeDialog.close();
+  try {
+    const ad = await VKService.showInterstitial();
+    if (ad.skipped === "cooldown") console.info("Межстраничная реклама пропущена: действует кулдаун");
+    else console.info("Межстраничная реклама показана:", Boolean(ad.result));
+  } finally {
+    state.completion = null;
+    beginLevel(difficulty, index);
+    void rollIn();
+    nextFlightPending = false;
+    nextButton.disabled = false;
+  }
 }
 
-document.querySelector("#nextButton").addEventListener("click", () => {
-  completeDialog.close();
-  callNextFlight();
-});
+nextButton.addEventListener("click", callNextFlight);
 
 completeDialog.addEventListener("close", callNextFlight);
 
-/* A new language redraws every string that JavaScript owns; the static
-   markup is handled by the translator itself. */
-I18N.onChange(() => {
-  if (state.level) renderAll();
-  else renderAdvice();
-});
-
 async function start() {
   makeCells();
-  loadProgress();
-  I18N.mountPicker(document.querySelector("#langSelect"));
+  migrateLegacyProgress();
   renderAdvice();
   const logoShown = wait(SPLASH_MIN_MS);
   try {
-    await trackLoading([
+    const progressTask = VKService.initialize()
+      .then(() => VKService.loadGameProgress(DEFAULT_PROGRESS, isValidProgress));
+    const [loadedProgress] = await trackLoading([
+      progressTask,
       ...Object.entries(LEVEL_FILES).map(([name, path]) => loadBank(name, path)),
       ...LuggageRenderer.loads,
       ...Array.from(document.querySelectorAll(".dolly-art, .baggage-tug"), imageReady),
       imageReady("./assets/apron-ground.jpg"),
     ]);
+    applyProgress(loadedProgress.data, loadedProgress.isFirstRun);
+    state.levelIndex = Math.min(state.levelIndex, state.banks[state.difficulty].length - 1);
     await logoShown;
     beginLevel(state.difficulty, state.levelIndex);
     /* The first cart waits off-screen while the logo dissolves, then drives in. */
@@ -713,6 +806,8 @@ async function start() {
 }
 
 start();
+
+window.addEventListener("pagehide", saveProgress);
 
 // Repaint at the actual displayed size, including orientation changes.
 new ResizeObserver(() => {

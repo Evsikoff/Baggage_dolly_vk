@@ -1,17 +1,17 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#111820" />
-    <meta name="description" data-i18n-content="meta.description" content="Baggage Dolly — a puzzle about stacking luggage on an airport baggage cart." />
+    <meta name="description" data-i18n-content="meta.description" content="Baggage Dolly — головоломка об укладке багажа на аэродромную тележку." />
     <title data-i18n="meta.title">Baggage Dolly</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <div id="splash" class="splash" role="status">
       <img class="splash-logo" src="./assets/fll.png" width="747" height="1000" data-i18n-alt="studio.name" alt="FLL Games" fetchpriority="high" draggable="false" />
-      <div class="splash-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-i18n-aria-label="loading.label" aria-label="Loading the shift"><i></i></div>
+      <div class="splash-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-i18n-aria-label="loading.label" aria-label="Готовим смену"><i></i></div>
     </div>
 
     <main class="game-shell" inert>
@@ -20,7 +20,7 @@
           <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
           <span>
             <strong data-i18n="brand.name">Baggage Dolly</strong>
-            <small data-i18n="brand.tagline">Apron shift</small>
+            <small data-i18n="brand.tagline">Смена на перроне</small>
           </span>
         </a>
 
@@ -28,31 +28,26 @@
           <div class="flight-status" data-i18n-aria-label="status.aria">
             <span class="status-light" aria-hidden="true"></span>
             <span class="flight-line">
-              <span class="flight-name"><b id="difficultyLabel">Tutorial</b> · <span data-i18n="status.flight">flight</span></span>
+              <span class="flight-name"><b id="difficultyLabel">Обучение</b> · <span data-i18n="status.flight">рейс</span></span>
               <b id="levelLabel">1/5</b>
             </span>
             <time id="timer" data-i18n-aria-label="status.timer">00:00</time>
           </div>
-
-          <label class="lang-picker">
-            <span class="visually-hidden" data-i18n="lang.label">Interface language</span>
-            <select id="langSelect" data-i18n-title="lang.label"></select>
-          </label>
         </div>
       </header>
 
       <section class="workspace" data-i18n-aria-label="workspace.aria">
         <div class="board-column">
           <div class="route-strip" data-i18n-aria-label="route.aria">
-            <span data-route="tutorial" data-i18n="difficulty.tutorial">Tutorial</span>
+            <span data-route="tutorial" data-i18n="difficulty.tutorial">Обучение</span>
             <i aria-hidden="true"></i>
-            <span data-route="easy" data-i18n="difficulty.easy">Easy</span>
+            <span data-route="easy" data-i18n="difficulty.easy">Просто</span>
             <i aria-hidden="true"></i>
-            <span data-route="medium" data-i18n="difficulty.medium">Medium</span>
+            <span data-route="medium" data-i18n="difficulty.medium">Средне</span>
             <i aria-hidden="true"></i>
-            <span data-route="hard" data-i18n="difficulty.hard">Hard</span>
+            <span data-route="hard" data-i18n="difficulty.hard">Сложно</span>
             <i aria-hidden="true"></i>
-            <span data-route="expert" data-i18n="difficulty.expert">Expert</span>
+            <span data-route="expert" data-i18n="difficulty.expert">Эксперт</span>
           </div>
 
           <div class="dolly-wrap">
@@ -65,61 +60,61 @@
                   class="board"
                   role="application"
                   data-i18n-aria-label="board.aria"
-                  aria-label="A 7 by 7 field. Drag from one cell to another to outline a rectangular suitcase."
+                  aria-label="Поле 7 на 7. Проведите от одной клетки до другой, чтобы создать прямоугольный чемодан."
                 >
                   <div id="regionsLayer" class="regions-layer" aria-hidden="true"></div>
                   <div id="grid" class="grid" aria-live="polite"></div>
                   <div id="draftLayer" class="draft-layer" aria-hidden="true"></div>
                 </div>
-                <img class="baggage-tug" src="./assets/baggage-tug.png" width="1086" height="1448" data-i18n-alt="tug.alt" alt="Baggage tug hitched to the dolly" draggable="false" />
+                <img class="baggage-tug" src="./assets/baggage-tug.png" width="1086" height="1448" data-i18n-alt="tug.alt" alt="Багажный тягач, сцепленный с тележкой" draggable="false" />
               </div>
               <div class="tug-clearance" aria-hidden="true"></div>
             </div>
           </div>
 
-          <p class="mobile-help" data-i18n="help.mobile">Swipe across the cells to outline a suitcase.</p>
+          <p class="mobile-help" data-i18n="help.mobile">Проведите пальцем по клеткам, чтобы собрать чемодан.</p>
         </div>
 
         <aside class="control-panel">
           <section class="briefing" aria-labelledby="briefingTitle">
-            <p class="eyebrow" data-i18n="briefing.eyebrow">Dispatcher's task</p>
-            <h1 id="briefingTitle" data-i18n="briefing.title">Load the baggage without gaps</h1>
-            <p data-i18n="briefing.text">Start from a tag. The number is the suitcase size in cells, the icon is its shape.</p>
+            <p class="eyebrow" data-i18n="briefing.eyebrow">Задание диспетчера</p>
+            <h1 id="briefingTitle" data-i18n="briefing.title">Уложите багаж без пробелов</h1>
+            <p data-i18n="briefing.text">Начните с бирки. Число показывает размер чемодана в клетках, значок — его форму.</p>
           </section>
 
           <section class="controls" data-i18n-aria-label="controls.aria">
             <button id="undoButton" class="tool-button" type="button" data-i18n-title="controls.undoHint" disabled>
-              <span aria-hidden="true">↶</span> <span data-i18n="controls.undo">Undo</span>
+              <span aria-hidden="true">↶</span> <span data-i18n="controls.undo">Отменить</span>
             </button>
             <button id="clearButton" class="tool-button" type="button" data-i18n-title="controls.clearHint" disabled>
-              <span aria-hidden="true">⌫</span> <span data-i18n="controls.clear">Clear</span>
+              <span aria-hidden="true">⌫</span> <span data-i18n="controls.clear">Очистить</span>
             </button>
             <button id="hintButton" class="tool-button hint-button" type="button" data-i18n-title="controls.hintHint" disabled>
-              <span aria-hidden="true">✦</span> <span data-i18n="controls.hint">Hint</span>
+              <span aria-hidden="true">✦</span> <span data-i18n="controls.hint">Подсказка 🎬</span>
             </button>
           </section>
 
           <section id="advice" class="advice" aria-live="polite">
             <div class="advice-icon" aria-hidden="true">i</div>
             <div>
-              <strong id="adviceTitle">How to load</strong>
-              <p id="adviceText">Hold a cell and drag across a rectangle. Exactly one colored tag must stay inside it.</p>
+              <strong id="adviceTitle">Как грузить</strong>
+              <p id="adviceText">Зажмите клетку и тяните по прямоугольнику. Внутри должна остаться ровно одна цветная бирка.</p>
             </div>
           </section>
 
           <section class="legend" aria-labelledby="legendTitle">
-            <h2 id="legendTitle" data-i18n="legend.title">What the tag says</h2>
+            <h2 id="legendTitle" data-i18n="legend.title">Что на бирке</h2>
             <div class="legend-row">
-              <span><b class="legend-shape square">□</b> <span data-i18n="shape.square">square</span></span>
-              <span><b class="legend-shape horizontal">↔</b> <span data-i18n="shape.horizontal">lengthwise</span></span>
-              <span><b class="legend-shape vertical">↕</b> <span data-i18n="shape.vertical">crosswise</span></span>
+              <span><b class="legend-shape square">□</b> <span data-i18n="shape.square">квадрат</span></span>
+              <span><b class="legend-shape horizontal">↔</b> <span data-i18n="shape.horizontal">вдоль</span></span>
+              <span><b class="legend-shape vertical">↕</b> <span data-i18n="shape.vertical">поперёк</span></span>
             </div>
-            <p data-i18n="legend.note">With no icon, only the size matters.</p>
+            <p data-i18n="legend.note">Если значка нет, важен только размер.</p>
           </section>
 
           <footer class="shift-stats">
-            <span><span data-i18n="stats.cases">Suitcases</span> <b id="bagCount">0/0</b></span>
-            <span><span data-i18n="stats.errors">Mistakes</span> <b id="errorCount">0</b></span>
+            <span><span data-i18n="stats.cases">Чемоданы</span> <b id="bagCount">0/0</b></span>
+            <span><span data-i18n="stats.errors">Ошибки</span> <b id="errorCount">0</b></span>
           </footer>
         </aside>
       </section>
@@ -127,16 +122,21 @@
 
     <dialog id="completeDialog" class="complete-dialog">
       <div class="completion-stamp" aria-hidden="true">✓</div>
-      <p class="eyebrow" data-i18n="dialog.eyebrow">The dolly is ready</p>
-      <h2 data-i18n="dialog.title">Baggage accepted</h2>
-      <p id="completeText">Every suitcase is in place.</p>
+      <p class="eyebrow" data-i18n="dialog.eyebrow">Тележка готова</p>
+      <h2 data-i18n="dialog.title">Багаж принят</h2>
+      <p id="completeText">Все чемоданы на своих местах.</p>
       <button id="nextButton" type="button">
-        <span data-i18n="dialog.next">Next flight</span> <span aria-hidden="true">→</span>
+        <span data-i18n="dialog.next">Следующий рейс</span> <span aria-hidden="true">→</span>
       </button>
     </dialog>
 
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js" defer></script>
     <script src="./i18n.js" defer></script>
     <script src="./luggage.js" defer></script>
+    <script src="./audioManager.js" defer></script>
+    <script src="./vkService.js" defer></script>
     <script src="./app.js" defer></script>
   </body>
 </html>

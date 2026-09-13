@@ -151,22 +151,6 @@ button, select { font: inherit; }
   font-variant-numeric: tabular-nums;
 }
 
-.lang-picker select {
-  padding: .3rem 1.5rem .3rem .6rem;
-  background: #1e2731 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6' fill='%23e9b93f'%3E%3Cpath d='M0 0h10L5 6z'/%3E%3C/svg%3E") no-repeat right .55rem center / .6rem .36rem;
-  border: 1px solid #3e4852;
-  border-radius: .2rem;
-  color: #eef1f4;
-  font-size: .82rem;
-  line-height: 1.3;
-  cursor: pointer;
-  appearance: none;
-}
-
-.lang-picker select:hover { border-color: var(--safety); }
-.lang-picker select:focus-visible { outline: .1875rem solid rgba(233, 185, 63, .45); outline-offset: .125rem; }
-.lang-picker option { background: #1e2731; color: #eef1f4; }
-
 .workspace {
   flex: 1;
   min-height: 0;
@@ -542,6 +526,26 @@ button, select { font: inherit; }
 .complete-dialog button { width: 100%; min-height: 3rem; margin-top: .6rem; border: 0; background: var(--ink); color: #fff; font-weight: 800; cursor: pointer; }
 .complete-dialog button span[aria-hidden] { color: var(--safety); margin-left: .3rem; }
 
+.toast {
+  position: fixed;
+  z-index: 120;
+  left: 50%;
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  max-width: min(32rem, calc(100% - 2rem));
+  padding: .8rem 1rem;
+  border-left: .25rem solid var(--safety);
+  background: #111820;
+  color: #fff;
+  box-shadow: 0 .8rem 2rem rgba(0, 0, 0, .3);
+  font-size: .9rem;
+  line-height: 1.35;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, .75rem);
+  transition: opacity .2s ease, transform .2s ease, visibility .2s;
+}
+.toast.visible { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+
 /* Taller than wide: the 16:9 stage would leave a letterbox strip, so the
    shift stacks instead and every block shrinks to keep one screenful. */
 @media (max-aspect-ratio: 1 / 1) {
@@ -563,8 +567,6 @@ button, select { font: inherit; }
   .flight-status { font-size: .78rem; gap: .35rem; }
   .flight-status .status-light { display: none; }
   .flight-status time { min-width: 3rem; margin-left: .2rem; padding-left: .5rem; }
-  .lang-picker select { padding: .25rem 1.3rem .25rem .45rem; font-size: .75rem; }
-
   .workspace {
     flex-direction: column;
     align-items: stretch;
