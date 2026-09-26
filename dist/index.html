@@ -16,13 +16,13 @@
 
     <main class="game-shell" inert>
       <header class="topbar">
-        <a class="brand" href="./" data-i18n-aria-label="brand.restart">
+        <div class="brand">
           <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
           <span>
             <strong data-i18n="brand.name">Baggage Dolly</strong>
             <small data-i18n="brand.tagline">Смена на перроне</small>
           </span>
-        </a>
+        </div>
 
         <div class="topbar-side">
           <div class="flight-status" data-i18n-aria-label="status.aria">
@@ -33,6 +33,17 @@
             </span>
             <time id="timer" data-i18n-aria-label="status.timer">00:00</time>
           </div>
+          <button id="soundButton" class="topbar-button icon-button" type="button" aria-pressed="true" data-i18n-aria-label="sound.toggle" aria-label="Звук">
+            <svg class="sound-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path class="speaker" d="M3 9h4l5-4v14l-5-4H3z" />
+              <path class="waves" d="M15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12" />
+              <path class="cross" d="M16 9.5l5 5M21 9.5l-5 5" />
+            </svg>
+          </button>
+          <button id="menuButton" class="topbar-button" type="button" data-i18n-title="menu.openHint" title="Пауза, настройки и правила">
+            <span class="menu-icon" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="topbar-button-label" data-i18n="menu.open">Меню</span>
+          </button>
         </div>
       </header>
 
@@ -128,6 +139,129 @@
       <button id="nextButton" type="button">
         <span data-i18n="dialog.next">Следующий рейс</span> <span aria-hidden="true">→</span>
       </button>
+      <button id="dialogMenuButton" class="secondary-button" type="button" data-i18n="dialog.menu">В меню</button>
+    </dialog>
+
+    <dialog id="menuDialog" class="menu-dialog" aria-labelledby="menuTitle">
+      <div class="menu-stage">
+        <section class="menu-hero">
+          <span class="brand-mark menu-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+          <p id="menuEyebrow" class="eyebrow">Главное меню</p>
+          <h1 id="menuTitle" class="menu-title" data-i18n="brand.name">Baggage Dolly</h1>
+          <p class="menu-tagline" data-i18n="menu.tagline">Головоломка об укладке багажа на аэродромную тележку.</p>
+          <dl class="menu-stats">
+            <div class="menu-stat wide">
+              <dt data-i18n="menu.stats.route">Смена</dt>
+              <dd id="menuRoute">Обучение · рейс 1/5</dd>
+            </div>
+            <div class="menu-stat">
+              <dt data-i18n="menu.stats.flights">Рейсов собрано</dt>
+              <dd id="menuFlights">0</dd>
+            </div>
+            <div class="menu-stat">
+              <dt data-i18n="menu.stats.hints">Подсказок</dt>
+              <dd id="menuHints">0</dd>
+            </div>
+            <div class="menu-stat">
+              <dt data-i18n="menu.stats.errors">Ошибок</dt>
+              <dd id="menuErrors">0</dd>
+            </div>
+          </dl>
+          <p class="menu-note" data-i18n="menu.anytime">В меню можно вернуться в любой момент: кнопка «Меню» наверху или клавиша Esc.</p>
+          <p class="menu-studio" data-i18n="studio.name">FLL Games</p>
+        </section>
+
+        <section class="menu-card">
+          <div class="menu-view" data-menu-view="main">
+            <button id="menuPlayButton" class="menu-primary" type="button" autofocus>
+              <span class="play-icon" aria-hidden="true"></span>
+              <span id="menuPlayLabel">Играть</span>
+            </button>
+            <button class="menu-item" type="button" data-menu-open="howto">
+              <span class="menu-item-icon" aria-hidden="true">?</span>
+              <span data-i18n="menu.howTo">Как играть</span>
+            </button>
+            <button class="menu-item" type="button" data-menu-open="settings">
+              <span class="menu-item-icon" aria-hidden="true">⚙</span>
+              <span data-i18n="menu.settings">Настройки</span>
+            </button>
+          </div>
+
+          <div class="menu-view" data-menu-view="settings" hidden>
+            <header class="menu-view-head">
+              <button class="menu-back" type="button" data-menu-open="main" data-i18n-aria-label="menu.back" aria-label="Назад">←</button>
+              <h2 data-i18n="settings.title">Настройки</h2>
+            </header>
+            <fieldset class="settings-group">
+              <legend data-i18n="settings.sound">Звук</legend>
+              <label class="setting-row">
+                <span data-i18n="settings.effects">Звуковые эффекты</span>
+                <input id="soundToggle" class="switch" type="checkbox" role="switch" />
+              </label>
+              <label class="setting-row">
+                <span data-i18n="settings.volume">Громкость</span>
+                <span class="volume-control">
+                  <input id="volumeRange" type="range" min="0" max="100" step="5" />
+                  <output id="volumeOutput" for="volumeRange">70%</output>
+                </span>
+              </label>
+            </fieldset>
+            <fieldset class="settings-group">
+              <legend data-i18n="settings.graphics">Графика</legend>
+              <label class="setting-row">
+                <span>
+                  <span data-i18n="settings.motion">Анимация тележек</span>
+                  <small data-i18n="settings.motionNote">Проезд тягача между рейсами</small>
+                </span>
+                <input id="motionToggle" class="switch" type="checkbox" role="switch" />
+              </label>
+              <div class="setting-row setting-choice">
+                <span id="qualityLabel" data-i18n="settings.quality">Качество графики</span>
+                <span class="segmented" role="radiogroup" aria-labelledby="qualityLabel">
+                  <label><input type="radio" name="quality" value="high" /><span data-i18n="settings.qualityHigh">Высокое</span></label>
+                  <label><input type="radio" name="quality" value="economy" /><span data-i18n="settings.qualityEconomy">Экономное</span></label>
+                </span>
+              </div>
+            </fieldset>
+            <fieldset class="settings-group">
+              <legend data-i18n="settings.progress">Прогресс</legend>
+              <button id="resetButton" class="reset-button" type="button" data-i18n="settings.reset">Начать смену заново</button>
+            </fieldset>
+          </div>
+
+          <div class="menu-view" data-menu-view="howto" hidden>
+            <header class="menu-view-head">
+              <button class="menu-back" type="button" data-menu-open="main" data-i18n-aria-label="menu.back" aria-label="Назад">←</button>
+              <h2 data-i18n="howto.title">Как играть</h2>
+            </header>
+            <ol class="howto-steps">
+              <li data-i18n="howto.step1">Каждая цветная бирка — один чемодан. Число на ней — сколько клеток он займёт.</li>
+              <li data-i18n="howto.step2">Зажмите клетку и протяните прямоугольник: внутри должна оказаться ровно одна бирка.</li>
+              <li data-i18n="howto.step3">Значок на бирке задаёт форму. Если значка нет, форма любая.</li>
+              <li data-i18n="howto.step4">Закройте все 49 клеток без наложений — и тягач увезёт тележку к самолёту.</li>
+            </ol>
+            <div class="legend-row howto-legend">
+              <span><b class="legend-shape square">□</b> <span data-i18n="shape.square">квадрат</span></span>
+              <span><b class="legend-shape horizontal">↔</b> <span data-i18n="shape.horizontal">вдоль</span></span>
+              <span><b class="legend-shape vertical">↕</b> <span data-i18n="shape.vertical">поперёк</span></span>
+            </div>
+            <h3 class="menu-section-title" data-i18n="howto.controls">Управление</h3>
+            <dl class="howto-controls">
+              <dt><span aria-hidden="true">↶</span> <span data-i18n="controls.undo">Отменить</span></dt>
+              <dd data-i18n="howto.undo">вернуть предыдущий ход</dd>
+              <dt><span aria-hidden="true">⌫</span> <span data-i18n="controls.clear">Очистить</span></dt>
+              <dd data-i18n="howto.clear">снять с тележки все чемоданы</dd>
+              <dt><span aria-hidden="true">✦</span> <span data-i18n="controls.hint">Подсказка 🎬</span></dt>
+              <dd data-i18n="howto.hint">после рекламы диспетчер сам уложит один чемодан</dd>
+              <dt data-i18n="howto.tapTerm">Нажатие на чемодан</dt>
+              <dd data-i18n="howto.tap">снимает его с тележки</dd>
+              <dt data-i18n="howto.menuTerm">☰ Меню или Esc</dt>
+              <dd data-i18n="howto.menu">пауза, настройки и правила</dd>
+            </dl>
+            <p class="howto-route" data-i18n="howto.route">Маршрут смены: Обучение → Просто → Средне → Сложно → Эксперт. Быстрые рейсы без ошибок и подсказок переводят на уровень выше.</p>
+          </div>
+        </section>
+      </div>
     </dialog>
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -136,6 +270,8 @@
     <script src="./i18n.js" defer></script>
     <script src="./luggage.js" defer></script>
     <script src="./audioManager.js" defer></script>
+    <script src="./settings.js" defer></script>
+    <script src="./sound.js" defer></script>
     <script src="./vkService.js" defer></script>
     <script src="./app.js" defer></script>
   </body>
