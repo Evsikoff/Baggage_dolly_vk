@@ -39,6 +39,17 @@ const nextButton = document.querySelector("#nextButton");
 const toast = document.querySelector("#toast");
 const splash = document.querySelector("#splash");
 const gameShell = document.querySelector(".game-shell");
+const menuDialog = document.querySelector("#menuDialog");
+const menuButton = document.querySelector("#menuButton");
+const menuPlayButton = document.querySelector("#menuPlayButton");
+const dialogMenuButton = document.querySelector("#dialogMenuButton");
+const soundButton = document.querySelector("#soundButton");
+const soundToggle = document.querySelector("#soundToggle");
+const volumeRange = document.querySelector("#volumeRange");
+const volumeOutput = document.querySelector("#volumeOutput");
+const motionToggle = document.querySelector("#motionToggle");
+const qualityInputs = document.querySelectorAll('input[name="quality"]');
+const resetButton = document.querySelector("#resetButton");
 
 /* Long enough to read the studio logo even when everything is cached. */
 const SPLASH_MIN_MS = 1800;
@@ -61,12 +72,39 @@ const state = {
   totalErrors: 0,
   isFirstRun: true,
   startedAt: Date.now(),
+  pausedAt: null,
   timerId: null,
   advice: { title: "advice.start.title", text: "advice.start.text", type: "info", params: {}, terms: {} },
   completion: null,
+  reportReady: false,
   travelling: false,
   advertising: false,
 };
+
+/* The menu doubles as the pause screen, so the flight clock stops while it
+   is open and the time spent there never counts against the player. */
+function elapsedMs() {
+  return (state.pausedAt ?? Date.now()) - state.startedAt;
+}
+
+function pauseClock() {
+  if (state.pausedAt === null) state.pausedAt = Date.now();
+}
+
+function resumeClock() {
+  if (state.pausedAt === null) return;
+  state.startedAt += Date.now() - state.pausedAt;
+  state.pausedAt = null;
+}
+
+function restartClock() {
+  state.startedAt = Date.now();
+  if (state.pausedAt !== null) state.pausedAt = state.startedAt;
+}
+
+function renderTimer() {
+  document.querySelector("#timer").textContent = formatTime(Math.floor(elapsedMs() / 1000));
+}
 
 function makeCells() {
   grid.innerHTML = "";
@@ -135,6 +173,9 @@ function saveProgress() {
 let toastTimer = null;
 function showToast(message) {
   window.clearTimeout(toastTimer);
+  /* The menu sits in the top layer, above anything on the page. */
+  const host = menuDialog.open ? menuDialog : document.body;
+  if (toast.parentElement !== host) host.append(toast);
   toast.textContent = message;
   toast.classList.add("visible");
   toastTimer = window.setTimeout(() => toast.classList.remove("visible"), 3600);
@@ -190,11 +231,13 @@ function beginLevel(difficulty, index) {
   state.invalidDraft = null;
   state.errors = 0;
   state.hints = 0;
-  state.startedAt = Date.now();
+  restartClock();
   state.completion = null;
+  state.reportReady = false;
   state.isFirstRun = false;
   saveProgress();
   renderAll();
+  renderTimer();
   if (difficulty === "tutorial") {
     setAdvice("advice.howTo.title", "advice.howTo.text");
   } else {
@@ -403,6 +446,7 @@ function snapshot() {
 function removeRegion(region) {
   snapshot();
   state.regions = state.regions.filter((item) => item.id !== region.id);
+  GameSound.play("lift");
   setAdvice("advice.removed.title", "advice.removed.text");
   renderAll();
 }
@@ -412,6 +456,7 @@ function addRect(rect) {
   if (!result.ok) {
     state.errors += 1;
     state.invalidDraft = rect;
+    GameSound.play("error");
     setAdvice(result.title, result.text, "error", result.params, result.terms);
     renderAll();
     window.setTimeout(() => {
@@ -424,6 +469,7 @@ function addRect(rect) {
   }
   snapshot();
   state.regions.push({ ...rect, clueIndex: result.clueIndex, id: crypto.randomUUID() });
+  GameSound.play("place");
   setAdvice("advice.accepted.title", "advice.accepted.text", "success", { area: state.level.clues[result.clueIndex].area });
   renderAll();
   checkCompletion();
@@ -442,8 +488,10 @@ const SETTLE_MS = 420;
 
 let sceneMotion = null;
 
+/* Follows the menu setting, which starts from the system's reduced-motion
+   preference. */
 function motionWanted() {
-  return !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  return GameSettings.get("motion");
 }
 
 function wait(ms) {
@@ -475,18 +523,35 @@ async function towAway() {
   renderStatus();
   if (!motionWanted()) return;
   await wait(SETTLE_MS);
+  GameSound.play("depart");
   await moveScene(0, travelDistance(), DEPARTURE);
 }
 
 async function rollIn(delay = 0) {
   state.travelling = true;
+  sceneParked = false;
   renderStatus();
-  if (motionWanted()) await moveScene(-travelDistance(), 0, { ...ARRIVAL, delay });
+  const arrival = motionWanted() ? moveScene(-travelDistance(), 0, { ...ARRIVAL, delay }) : null;
+  /* Unhidden only once the move holds it above the frame. */
+  dollyScene.classList.remove("is-parked");
+  await arrival;
   sceneMotion?.cancel();
   sceneMotion = null;
   state.travelling = false;
-  state.startedAt = Date.now();
+  restartClock();
   renderStatus();
+}
+
+/* Between the title screen and the first flight, or when the player heads
+   for the menu from the report, the next dolly waits out of sight and only
+   drives in once the menu closes. */
+let sceneParked = false;
+
+function parkScene() {
+  sceneMotion?.cancel();
+  sceneMotion = null;
+  sceneParked = true;
+  dollyScene.classList.add("is-parked");
 }
 
 function checkCompletion() {
@@ -496,6 +561,7 @@ function checkCompletion() {
   if (wrong.length) {
     state.errors += 1;
     wrong.forEach((region) => { region.wrong = true; });
+    GameSound.play("error");
     setAdvice("advice.mismatch.title", "advice.mismatch.text", "error");
     renderAll();
     window.setTimeout(() => {
@@ -504,14 +570,27 @@ function checkCompletion() {
     }, 1500);
     return;
   }
-  const seconds = Math.floor((Date.now() - state.startedAt) / 1000);
+  const seconds = Math.floor(elapsedMs() / 1000);
   state.completion = { count: state.regions.length, time: formatTime(seconds), errors: state.errors };
   state.completedLevels += 1;
   state.totalErrors += state.errors;
   saveProgress();
   renderCompletion();
-  /* The report only makes sense while it is still the current one. */
-  towAway().then(() => { if (state.completion) completeDialog.showModal(); });
+  GameSound.play("complete");
+  const report = state.completion;
+  towAway().then(() => {
+    /* The report only makes sense while it is still the current one. */
+    if (state.completion !== report) return;
+    state.reportReady = true;
+    presentCompletion();
+  });
+}
+
+/* A player who opened the menu while the dolly drove off sees the report
+   once they leave it. */
+function presentCompletion() {
+  if (!state.completion || !state.reportReady || menuDialog.open || completeDialog.open) return;
+  completeDialog.showModal();
 }
 
 function placeRegionsFromTool(input) {
@@ -616,7 +695,7 @@ function registerWebMcpTools() {
 }
 
 function getNextLevel() {
-  const elapsed = (Date.now() - state.startedAt) / 1000;
+  const elapsed = elapsedMs() / 1000;
   const fast = state.errors === 0 && state.hints === 0 && elapsed <= (state.difficulty === "easy" ? 90 : 150);
   let fastEasy = state.fastEasy;
 
@@ -654,7 +733,7 @@ function formatTime(totalSeconds) {
 }
 
 board.addEventListener("pointerdown", (event) => {
-  if (!state.level || state.travelling || completeDialog.open) return;
+  if (!state.level || state.travelling || completeDialog.open || menuDialog.open) return;
   event.preventDefault();
   board.setPointerCapture(event.pointerId);
   const start = cellFromPointer(event);
@@ -691,6 +770,7 @@ board.addEventListener("pointercancel", () => {
 undoButton.addEventListener("click", () => {
   if (!state.history.length) return;
   state.regions = state.history.pop();
+  GameSound.play("lift");
   setAdvice("advice.undone.title", "advice.undone.text");
   renderAll();
 });
@@ -699,6 +779,7 @@ clearButton.addEventListener("click", () => {
   if (!state.regions.length) return;
   snapshot();
   state.regions = [];
+  GameSound.play("lift");
   setAdvice("advice.cleared.title", "advice.cleared.text");
   renderAll();
 });
@@ -710,6 +791,7 @@ function applyHint(target) {
   state.regions = state.regions.filter((region) => !overlaps(region, target));
   const clue = cluesIn(target)[0];
   state.regions.push({ ...target, clueIndex: clue.index, id: crypto.randomUUID(), hinted: true });
+  GameSound.play("hint");
   const area = target.width * target.height;
   setAdvice("advice.hint.title", "advice.hint.text", "success", { area }, { cells: ["units.cellsAcc", area] });
   saveProgress();
@@ -749,6 +831,7 @@ hintButton.addEventListener("click", async () => {
 /* Called from the button and from the dialog's own close event, which also
    covers Escape; the finished report is the token that makes it run once. */
 let nextFlightPending = false;
+let menuAfterFlight = false;
 async function callNextFlight() {
   if (!state.completion || nextFlightPending) return;
   nextFlightPending = true;
@@ -762,7 +845,13 @@ async function callNextFlight() {
   } finally {
     state.completion = null;
     beginLevel(difficulty, index);
-    void rollIn();
+    if (menuAfterFlight) {
+      menuAfterFlight = false;
+      parkScene();
+      openMenu();
+    } else {
+      void rollIn();
+    }
     nextFlightPending = false;
     nextButton.disabled = false;
   }
@@ -770,7 +859,187 @@ async function callNextFlight() {
 
 nextButton.addEventListener("click", callNextFlight);
 
+/* The flight is banked either way; the next one waits behind the menu. */
+dialogMenuButton.addEventListener("click", () => {
+  menuAfterFlight = true;
+  completeDialog.close();
+});
+
 completeDialog.addEventListener("close", callNextFlight);
+
+/* ---- Menu: the title screen and the pause screen ---- */
+
+function isFreshShift() {
+  return state.completedLevels === 0 && state.difficulty === "tutorial" && state.levelIndex === 0;
+}
+
+function renderMenu() {
+  const playKey = !sceneParked ? "menu.resume" : isFreshShift() ? "menu.play" : "menu.continueShift";
+  document.querySelector("#menuPlayLabel").textContent = t(playKey);
+  document.querySelector("#menuEyebrow").textContent = t(sceneParked ? "menu.eyebrowStart" : "menu.eyebrowPause");
+  document.querySelector("#menuRoute").textContent = t("menu.stats.routeValue", {
+    difficulty: t(`difficulty.${state.difficulty}`),
+    flight: state.levelIndex + 1,
+    total: state.banks[state.difficulty]?.length || 1,
+  });
+  document.querySelector("#menuFlights").textContent = String(state.completedLevels);
+  document.querySelector("#menuHints").textContent = String(state.totalHints);
+  document.querySelector("#menuErrors").textContent = String(state.totalErrors);
+}
+
+function showMenuView(name) {
+  const previous = menuDialog.dataset.view;
+  menuDialog.dataset.view = name;
+  menuDialog.querySelectorAll("[data-menu-view]").forEach((view) => {
+    view.hidden = view.dataset.menuView !== name;
+  });
+  disarmReset();
+  /* Keyboard focus follows the player into a page and back to the button
+     that led there. */
+  const target = name === "main"
+    ? menuDialog.querySelector(`[data-menu-open="${previous}"]`) || menuPlayButton
+    : menuDialog.querySelector(`[data-menu-view="${name}"] .menu-back`);
+  target?.focus({ preventScroll: true });
+}
+
+function openMenu(view = "main") {
+  if (!state.level) return;
+  if (!menuDialog.open) {
+    pauseClock();
+    /* A half-drawn case is dropped rather than finished behind the menu. */
+    state.drag = null;
+    renderDraft();
+    renderMenu();
+    delete menuDialog.dataset.view;
+    menuDialog.showModal();
+  }
+  showMenuView(view);
+}
+
+menuDialog.addEventListener("click", (event) => {
+  const opener = event.target.closest("[data-menu-open]");
+  if (!opener) return;
+  GameSound.play("click");
+  showMenuView(opener.dataset.menuOpen);
+});
+
+/* Escape steps back out of a page before it leaves the menu. It is caught
+   on keydown: browsers stop honouring a cancelled dialog "cancel" after the
+   first time. */
+menuDialog.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape" || menuDialog.dataset.view === "main") return;
+  event.preventDefault();
+  showMenuView("main");
+});
+
+menuPlayButton.addEventListener("click", () => menuDialog.close());
+
+/* Every way out of the menu lands here, Escape included. */
+menuDialog.addEventListener("close", () => {
+  GameSound.unlock();
+  GameSound.play("click");
+  resumeClock();
+  renderTimer();
+  if (sceneParked) void rollIn();
+  presentCompletion();
+});
+
+menuButton.addEventListener("click", () => {
+  GameSound.play("click");
+  openMenu();
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape" || event.defaultPrevented) return;
+  if (menuDialog.open || completeDialog.open || splash.isConnected) return;
+  event.preventDefault();
+  openMenu();
+});
+
+/* ---- Settings ---- */
+
+let appliedQuality = null;
+
+function applySettings(settings) {
+  GameSound.configure(settings);
+  document.documentElement.classList.toggle("reduce-motion", !settings.motion);
+  if (settings.quality !== appliedQuality) {
+    appliedQuality = settings.quality;
+    document.documentElement.classList.toggle("economy-graphics", settings.quality === "economy");
+    LuggageRenderer.setDensityCap(settings.quality === "economy" ? 1 : 2);
+    if (state.level) renderRegions();
+  }
+
+  const audible = settings.sound && settings.volume > 0;
+  soundButton.setAttribute("aria-pressed", String(audible));
+  soundButton.classList.toggle("is-muted", !audible);
+  soundToggle.checked = settings.sound;
+  volumeRange.value = String(settings.volume);
+  volumeRange.disabled = !settings.sound;
+  volumeOutput.textContent = `${settings.volume}%`;
+  motionToggle.checked = settings.motion;
+  qualityInputs.forEach((input) => { input.checked = input.value === settings.quality; });
+}
+
+GameSettings.subscribe(applySettings);
+
+/* The quick toggle brings back a volume someone dragged down to zero. */
+soundButton.addEventListener("click", () => {
+  const audible = GameSettings.get("sound") && GameSettings.get("volume") > 0;
+  if (!audible && GameSettings.get("volume") === 0) GameSettings.set("volume", 70);
+  GameSettings.set("sound", !audible);
+  GameSound.play("click");
+});
+
+soundToggle.addEventListener("change", () => {
+  GameSettings.set("sound", soundToggle.checked);
+  GameSound.play("click");
+});
+
+volumeRange.addEventListener("input", () => GameSettings.set("volume", Number(volumeRange.value)));
+volumeRange.addEventListener("change", () => GameSound.play("place"));
+
+motionToggle.addEventListener("change", () => {
+  GameSettings.set("motion", motionToggle.checked);
+  GameSound.play("click");
+});
+
+qualityInputs.forEach((input) => input.addEventListener("change", () => {
+  if (input.checked) GameSettings.set("quality", input.value);
+  GameSound.play("click");
+}));
+
+/* Starting over wipes the whole shift, so the button asks twice. */
+let resetTimer = null;
+
+function disarmReset() {
+  window.clearTimeout(resetTimer);
+  resetTimer = null;
+  resetButton.classList.remove("is-armed");
+  resetButton.textContent = t("settings.reset");
+}
+
+function resetShift() {
+  applyProgress(DEFAULT_PROGRESS);
+  state.completion = null;
+  menuAfterFlight = false;
+  beginLevel("tutorial", 0);
+  parkScene();
+  renderMenu();
+  showToast(t("settings.resetDone"));
+}
+
+resetButton.addEventListener("click", () => {
+  GameSound.play("click");
+  if (!resetTimer) {
+    resetButton.classList.add("is-armed");
+    resetButton.textContent = t("settings.resetConfirm");
+    resetTimer = window.setTimeout(disarmReset, 4000);
+    return;
+  }
+  disarmReset();
+  resetShift();
+});
 
 async function start() {
   makeCells();
@@ -791,13 +1060,13 @@ async function start() {
     state.levelIndex = Math.min(state.levelIndex, state.banks[state.difficulty].length - 1);
     await logoShown;
     beginLevel(state.difficulty, state.levelIndex);
-    /* The first cart waits off-screen while the logo dissolves, then drives in. */
-    rollIn(SPLASH_FADE_MS * .6);
+    /* The logo dissolves into the main menu; the first cart waits
+       off-screen and drives in when the player leaves it. */
+    parkScene();
     liftSplash();
+    openMenu();
     registerWebMcpTools();
-    state.timerId = window.setInterval(() => {
-      document.querySelector("#timer").textContent = formatTime(Math.floor((Date.now() - state.startedAt) / 1000));
-    }, 1000);
+    state.timerId = window.setInterval(renderTimer, 1000);
   } catch (error) {
     liftSplash();
     setAdvice("advice.loadError.title", "advice.loadError.text", "error");

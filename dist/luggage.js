@@ -33,6 +33,8 @@ const LuggageRenderer = (() => {
   const ready = Promise.all(loads);
 
   let pool = sources;
+  /* Economy graphics paint at one canvas pixel per CSS pixel. */
+  let densityCap = 2;
   ready.then(() => {
     const loaded = sources.filter((image) => image.complete && image.naturalWidth);
     if (loaded.length) pool = loaded;
@@ -117,7 +119,7 @@ const LuggageRenderer = (() => {
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
     if (!skin || !width || !height) return;
-    const density = Math.min(window.devicePixelRatio || 1, 2);
+    const density = Math.min(window.devicePixelRatio || 1, densityCap);
     canvas.width = Math.round(width * density);
     canvas.height = Math.round(height * density);
     const ctx = canvas.getContext("2d");
@@ -132,5 +134,10 @@ const LuggageRenderer = (() => {
     }
   }
 
-  return { ready, loads, paint };
+  return {
+    ready,
+    loads,
+    paint,
+    setDensityCap(value) { densityCap = Math.max(1, Number(value) || 1); },
+  };
 })();
